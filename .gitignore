@@ -25,47 +25,6 @@ venv/
 env/
 ENV/
 
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Database
-*.db
-*.sqlite3
-*.sqlite
-instance/
-
-# Logs
-*.log
-
-# Local development
-.DS_Store
-Thumbs.db
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Project specific (add your sensitive files here)
-# config.py
-# credentials.json
-# secrets.ini
-
-# Uploads
-static/uploads/*
-!static/uploads/.gitkeep
-
-# Virtual Environment
-venv/
-env/
-ENV/
-
 # IDE
 .idea/
 .vscode/
