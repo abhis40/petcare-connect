@@ -11,14 +11,38 @@ import json
 from datetime import datetime, timedelta
 import calendar
 
+import os
+import sys
+from pathlib import Path
+
+# Ensure required directories exist
+REQUIRED_DIRS = [
+    'static/uploads',
+    'instance'
+]
+
+for directory in REQUIRED_DIRS:
+    Path(directory).mkdir(parents=True, exist_ok=True)
+
 # Initialize Flask application
-app = Flask(__name__, template_folder='templates')
-app.config['SECRET_KEY'] = 'your-secret-key-here'
+app = Flask(__name__, template_folder='templates', static_folder='static')
+
+# Configuration
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+if not app.config['SECRET_KEY']:
+    print("ERROR: SECRET_KEY environment variable is not set", file=sys.stderr)
+    print("Generating a temporary secret key for development", file=sys.stderr)
+    import secrets
+    app.config['SECRET_KEY'] = secrets.token_hex(24)
+
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///petcare.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///instance/petcare.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['EXPLAIN_TEMPLATE_LOADING'] = True
+
+# Ensure the upload folder exists
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 # Ensure upload directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -2398,5 +2422,16 @@ def cancel_service_request(request_id):
     return redirect(url_for('list_service_requests'))
 
 
+# Function to create database tables if they don't exist
+def initialize_database():
+    with app.app_context():
+        db.create_all()
+        print("Database tables created successfully")
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Initialize database
+    initialize_database()
+    
+    # Run the app
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port, debug=True)
