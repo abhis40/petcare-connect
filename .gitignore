@@ -57,11 +57,6 @@ Thumbs.db
 # credentials.json
 # secrets.ini
 
-# Replit
-.replit
-.replit.nix
-.replit/
-
 # Uploads
 static/uploads/*
 !static/uploads/.gitkeep

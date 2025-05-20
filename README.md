@@ -44,69 +44,80 @@ A comprehensive pet care management system built with Flask and TensorFlow.
    - `FLASK_APP`: `app.py`
    - `FLASK_ENV`: `development` (or `production` for production)
 
-### Running the Application
+## 🏃‍♂️ Running Locally
 
-1. Once imported, Replit will automatically install dependencies from `requirements.txt`
-2. The app will start automatically when you open the project
-3. Click the "Run" button to start the application if it's not already running
-4. Access your app using the URL provided by Replit (usually something like `https://your-project-name.your-username.repl.co`)
-
-### Database Initialization
-
-The database will be automatically initialized when the app starts for the first time. If you need to reset the database:
-
-1. Open the shell in Replit
-2. Run: `python init_db.py`
-
-## 🐳 Local Development
-
-### Prerequisites
-
-- Python 3.9 or higher
-- pip (Python package manager)
-- Git
-
-### Setup
-
-1. Clone the repository:
+1. **Clone the repository**
    ```bash
    git clone https://github.com/your-username/pet-care-app.git
    cd pet-care-app
    ```
 
-2. Create and activate a virtual environment:
+2. **Set up a virtual environment**
    ```bash
+   # On Windows
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   .\venv\Scripts\activate
+
+   # On macOS/Linux
+   python3 -m venv venv
+   source venv/bin/activate
    ```
 
-3. Install dependencies:
+3. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Set up environment variables:
-   - Copy `.env.example` to `.env`
-   - Update the values in `.env` as needed
-
-5. Initialize the database:
-   ```bash
-   python init_db.py
+4. **Set up environment variables**
+   Create a `.env` file in the root directory with:
+   ```
+   SECRET_KEY=your-secret-key-here
+   FLASK_APP=app.py
+   FLASK_ENV=development
+   DATABASE_URL=sqlite:///instance/petcare.db
    ```
 
-6. Run the development server:
+5. **Initialize the database**
+   ```bash
+   flask init-db
+   ```
+
+6. **Run the application**
    ```bash
    flask run
    ```
+   Open your browser to `http://localhost:5000`
 
-7. Open your browser and go to `http://localhost:5000`
+## 📦 Dependencies
 
-## 📝 Important Notes
+- Python 3.9+
+- Flask 2.3.3
+- TensorFlow 2.13.0
+- OpenCV 4.8.0
+- SQLAlchemy 2.0.20
+- Flask-Login 0.6.2
+- Gunicorn (for production)
+- See `requirements.txt` for the complete list
 
-- The free tier of Replit puts your app to sleep after a period of inactivity
-- For production use, consider upgrading to a paid plan or using a different hosting service
-- SQLite is used by default for development, but for production, consider using a more robust database like PostgreSQL
-- Make sure to set `FLASK_ENV=production` and `DEBUG=False` in production
+## 🛠 Project Structure
+
+```
+pet-care-app/
+├── app.py               # Main application
+├── requirements.txt     # Python dependencies
+├── render.yaml          # Render configuration
+├── Procfile            # Process file for Render
+├── wsgi.py             # WSGI entry point
+├── static/             # Static files (CSS, JS, images)
+│   └── uploads/        # User uploaded files
+├── templates/          # HTML templates
+├── instance/           # Database and instance files
+└── README.md           # This file
+```
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 

@@ -28,18 +28,35 @@ for directory in REQUIRED_DIRS:
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
 # Configuration
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-if not app.config['SECRET_KEY']:
-    print("ERROR: SECRET_KEY environment variable is not set", file=sys.stderr)
-    print("Generating a temporary secret key for development", file=sys.stderr)
-    import secrets
-    app.config['SECRET_KEY'] = secrets.token_hex(24)
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    if not SECRET_KEY:
+        import secrets
+        SECRET_KEY = secrets.token_hex(24)
+        print(f"WARNING: Using auto-generated SECRET_KEY. Set SECRET_KEY in production!")
+    
+    UPLOAD_FOLDER = 'static/uploads'
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///instance/petcare.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_recycle': 300,
+        'pool_pre_ping': True,
+    }
 
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
-app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///instance/petcare.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['EXPLAIN_TEMPLATE_LOADING'] = True
+# Apply configuration
+app.config.from_object(Config)
+
+# Ensure upload folder exists
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+# Initialize database
+db = SQLAlchemy(app)
+
+# Initialize login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 # Ensure the upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
