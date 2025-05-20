@@ -7,6 +7,10 @@ pkgs.mkShell {
     python39Packages.pip
     python39Packages.virtualenv
     python39Packages.setuptools
+    pkgs.python310Full
+    pkgs.python310Packages.pip
+    pkgs.python310Packages.setuptools
+    pkgs.python310Packages.tensorflow
     
     # System dependencies
     ffmpeg
