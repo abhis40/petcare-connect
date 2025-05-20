@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block title %}PetCare Connect - Detailed Diet Plan{% endblock %}
+
+{% block extracss %}
+<style>
+    .pet-image {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .breed-name {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .diet-section {
+        margin-bottom: 2rem;
+    }
+    
+    .diet-card {
+        height: 100%;
+        transition: transform 0.3s ease;
+        border-left: 4px solid #4e73df;
+    }
+    
+    .diet-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .food-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .food-item:last-child {
+        border-bottom: none;
+    }
+    
+    .food-icon {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        color: #4e73df;
+    }
+    
+    .meal-plan-day {
+        background-color: #f8f9fc;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .meal-time {
+        font-weight: 600;
+        color: #4e73df;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('diet_recommendation') }}">Diet Recommendation</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Detailed Diet Plan</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-5 mb-4 mb-md-0">
+            <div class="text-center">
+                <img src="{{ image_path }}" alt="{{ breed }} {{ animal_type }}" class="pet-image">
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="h6 text-muted text-uppercase mb-2">Diet Recommendation For</div>
+            <h1 class="breed-name">{{ breed|title }}</h1>
+            <div class="badge bg-primary mb-3">{{ animal_type|title }}</div>
+            
+            <p class="lead">
+                A proper diet is essential for your {{ breed|title }}'s health and wellbeing. Below you'll find a comprehensive diet plan tailored specifically for this breed.
+            </p>
+            
+            <div class="d-flex mb-4">
+                <a href="{{ url_for('diet_recommendation') }}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-redo me-2"></i>Try Another
+                </a>
+                <a href="{{ url_for('list_caretakers') }}?location={{ current_user.location }}" class="btn btn-primary">
+                    <i class="fas fa-hands-helping me-2"></i>Find Caretakers
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Diet Overview Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title h3 mb-4">Diet Overview for {{ breed|title }}</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="h5 mb-3">Nutritional Needs</h4>
+                            <p>{{ diet_details.nutritional_needs }}</p>
+                            
+                            <h4 class="h5 mb-3 mt-4">Daily Caloric Requirements</h4>
+                            <p>{{ diet_details.caloric_requirements }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="h5 mb-3">Feeding Schedule</h4>
+                            <p>{{ diet_details.feeding_schedule }}</p>
+                            
+                            <h4 class="h5 mb-3 mt-4">Special Considerations</h4>
+                            <p>{{ diet_details.special_considerations }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recommended Foods Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title h3 mb-4">Recommended Foods</h2>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card diet-card h-100">
+                                <div class="card-body">
+                                    <h3 class="h5 card-title mb-3">
+                                        <i class="fas fa-check-circle text-success me-2"></i>Foods to Include
+                                    </h3>
+                                    <div class="food-list">
+                                        {% for food in diet_details.recommended_foods %}
+                                        <div class="food-item">
+                                            <div class="food-icon">
+                                                <i class="fas fa-utensils"></i>
+                                            </div>
+                                            <div>{{ food }}</div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card diet-card h-100" style="border-left: 4px solid #e74a3b;">
+                                <div class="card-body">
+                                    <h3 class="h5 card-title mb-3">
+                                        <i class="fas fa-times-circle text-danger me-2"></i>Foods to Avoid
+                                    </h3>
+                                    <div class="food-list">
+                                        {% for food in diet_details.foods_to_avoid %}
+                                        <div class="food-item">
+                                            <div class="food-icon" style="color: #e74a3b;">
+                                                <i class="fas fa-ban"></i>
+                                            </div>
+                                            <div>{{ food }}</div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sample Meal Plan Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title h3 mb-4">Sample 7-Day Meal Plan</h2>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="meal-plan-day">
+                                <h4 class="h5 mb-3">Day 1</h4>
+                                <div class="mb-2">
+                                    <span class="meal-time">Morning:</span> {{ diet_details.sample_meal_plan.day1.morning }}
+                                </div>
+                                <div class="mb-2">
+                                    <span class="meal-time">Afternoon:</span> {{ diet_details.sample_meal_plan.day1.afternoon }}
+                                </div>
+                                <div>
+                                    <span class="meal-time">Evening:</span> {{ diet_details.sample_meal_plan.day1.evening }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="meal-plan-day">
+                                <h4 class="h5 mb-3">Day 2</h4>
+                                <div class="mb-2">
+                                    <span class="meal-time">Morning:</span> {{ diet_details.sample_meal_plan.day2.morning }}
+                                </div>
+                                <div class="mb-2">
+                                    <span class="meal-time">Afternoon:</span> {{ diet_details.sample_meal_plan.day2.afternoon }}
+                                </div>
+                                <div>
+                                    <span class="meal-time">Evening:</span> {{ diet_details.sample_meal_plan.day2.evening }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="meal-plan-day">
+                                <h4 class="h5 mb-3">Day 3</h4>
+                                <div class="mb-2">
+                                    <span class="meal-time">Morning:</span> {{ diet_details.sample_meal_plan.day3.morning }}
+                                </div>
+                                <div class="mb-2">
+                                    <span class="meal-time">Afternoon:</span> {{ diet_details.sample_meal_plan.day3.afternoon }}
+                                </div>
+                                <div>
+                                    <span class="meal-time">Evening:</span> {{ diet_details.sample_meal_plan.day3.evening }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="meal-plan-day">
+                                <h4 class="h5 mb-3">Day 4</h4>
+                                <div class="mb-2">
+                                    <span class="meal-time">Morning:</span> {{ diet_details.sample_meal_plan.day4.morning }}
+                                </div>
+                                <div class="mb-2">
+                                    <span class="meal-time">Afternoon:</span> {{ diet_details.sample_meal_plan.day4.afternoon }}
+                                </div>
+                                <div>
+                                    <span class="meal-time">Evening:</span> {{ diet_details.sample_meal_plan.day4.evening }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <p class="text-muted">Note: This is a sample meal plan. Adjust portions based on your pet's weight, age, and activity level.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Supplements and Treats Section -->
+    <div class="row mb-5">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h2 class="card-title h3 mb-4">Recommended Supplements</h2>
+                    <p>{{ diet_details.supplements }}</p>
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Always consult with your veterinarian before starting any supplement regimen.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <h2 class="card-title h3 mb-4">Treats and Snacks</h2>
+                    <p>{{ diet_details.treats }}</p>
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Treats should not exceed 10% of your pet's daily caloric intake.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Additional Resources Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title h3 mb-4">Additional Resources</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="h5 mb-3">Find Local Services</h4>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <a href="{{ url_for('list_caretakers') }}?location={{ current_user.location }}" class="text-decoration-none">
+                                        <i class="fas fa-hands-helping text-primary me-2"></i>Caretakers in {{ current_user.location }}
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="#" class="text-decoration-none">
+                                        <i class="fas fa-clinic-medical text-primary me-2"></i>Veterinary nutritionists nearby
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="text-decoration-none">
+                                        <i class="fas fa-store text-primary me-2"></i>Pet nutrition stores
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="h5 mb-3">Learn More About {{ breed|title }} Nutrition</h4>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <a href="#" class="text-decoration-none">
+                                        <i class="fas fa-book text-primary me-2"></i>Breed-specific nutrition guide
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="#" class="text-decoration-none">
+                                        <i class="fas fa-video text-primary me-2"></i>Video: Preparing homemade meals
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="text-decoration-none">
+                                        <i class="fas fa-file-alt text-primary me-2"></i>Downloadable meal planner
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

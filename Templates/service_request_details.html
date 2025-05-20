@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+
+{% block title %}Service Request Details{% endblock %}
+
+{% block extracss %}
+<style>
+    /* Fix card height issues */
+    .card {
+        height: auto !important;
+    }
+    
+    .contact-card {
+        height: 100% !important;
+    }
+    
+    /* Service badges styling */
+    .service-badge {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem;
+        margin-right: 0.3rem;
+        margin-bottom: 0.3rem;
+        border-radius: 50rem;
+        background-color: #e9ecef;
+        color: #495057;
+        display: inline-block;
+    }
+    
+    /* Button styling */
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .action-buttons form {
+        margin: 0;
+    }
+    
+    /* Status badge styling */
+    .status-badge {
+        padding: 0.5rem 0.75rem;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Service Request Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <h3 class="h5">Request for {{ request.pet.name }}</h3>
+                            <p class="text-muted mb-0">{{ request.pet.species|title }} - {{ request.pet.breed }}</p>
+                        </div>
+                        <span class="badge status-badge {% if request.status == 'open' %}bg-warning{% elif request.status == 'accepted' %}bg-info{% elif request.status == 'completed' %}bg-success{% else %}bg-secondary{% endif %}">
+                            {{ request.status|title }}
+                        </span>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h4 class="h6">Services Needed</h4>
+                                <div class="d-flex flex-wrap">
+                                    {% for service in request.get_services_needed() %}
+                                        <span class="service-badge">{{ service }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h4 class="h6">Schedule</h4>
+                                <div class="d-flex align-items-center mb-1">
+                                    <i class="fas fa-calendar-alt text-muted me-2"></i>
+                                    <span>{{ request.start_time.strftime('%b %d, %Y') }}</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-clock text-muted me-2"></i>
+                                    <span>{{ request.start_time.strftime('%H:%M') }} - {{ request.end_time.strftime('%H:%M') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if request.description %}
+                    <div class="mb-4">
+                        <h4 class="h6">Additional Details</h4>
+                        <p class="mb-0">{{ request.description }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if request.status == 'accepted' or request.status == 'completed' %}
+                        <hr class="my-4">
+                        
+                        {% if request.status == 'completed' and current_user.user_type == 'pet_owner' and current_user.id == request.pet_owner_id and not request.review %}
+                        <!-- Review Button for Completed Services (Pet Owner Only) -->
+                        <div class="text-center mb-4">
+                            <a href="{{ url_for('submit_review', request_id=request.id) }}" class="btn btn-success">
+                                <i class="fas fa-star me-2"></i>Submit Review
+                            </a>
+                            <p class="text-muted small mt-2">Please share your experience with this caretaker</p>
+                        </div>
+                        {% endif %}
+                        
+                        {% if request.review %}
+                        <!-- Display Review if it exists -->
+                        <div class="card border-warning mb-4">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0 h6">Review</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    {% for i in range(5) %}
+                                        <i class="fas fa-star {% if i < request.review.rating %}text-warning{% else %}text-muted{% endif %}"></i>
+                                    {% endfor %}
+                                </div>
+                                {% if request.review.comment %}
+                                <p class="mb-1">{{ request.review.comment }}</p>
+                                {% endif %}
+                                <small class="text-muted">Reviewed on {{ request.review.created_at.strftime('%b %d, %Y') }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Contact Information Section -->
+                        <div class="row">
+                            <!-- Pet Owner Information -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card contact-card border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0 h6">Pet Owner Information</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="flex-shrink-0">
+                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                    <i class="fas fa-user text-primary"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="mb-0">{{ pet_owner.name }}</h6>
+                                                <p class="text-muted small mb-0">Pet Owner</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-2">
+                                            <div class="d-flex align-items-center mb-1">
+                                                <i class="fas fa-envelope text-muted me-2"></i>
+                                                <span>{{ pet_owner.email }}</span>
+                                            </div>
+                                            {% if pet_owner.phone %}
+                                            <div class="d-flex align-items-center mb-1">
+                                                <i class="fas fa-phone text-muted me-2"></i>
+                                                <span>{{ pet_owner.phone }}</span>
+                                            </div>
+                                            {% endif %}
+                                            {% if pet_owner.alternate_phone %}
+                                            <div class="d-flex align-items-center mb-1">
+                                                <i class="fas fa-phone-alt text-muted me-2"></i>
+                                                <span>{{ pet_owner.alternate_phone }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if pet_owner.address %}
+                                        <div class="mb-0">
+                                            <div class="d-flex align-items-start mb-1">
+                                                <i class="fas fa-map-marker-alt text-muted me-2 mt-1"></i>
+                                                <div>
+                                                    {{ pet_owner.address }}<br>
+                                                    {% if pet_owner.city %}{{ pet_owner.city }}{% endif %}
+                                                    {% if pet_owner.state %}{{ pet_owner.state }}{% endif %}
+                                                    {% if pet_owner.pincode %}{{ pet_owner.pincode }}{% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Caretaker Information -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card contact-card border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h5 class="mb-0 h6">Caretaker Information</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="flex-shrink-0">
+                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                    <i class="fas fa-user-md text-success"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="mb-0">{{ caretaker.name }}</h6>
+                                                <p class="text-muted small mb-0">Pet Caretaker</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-2">
+                                            <div class="d-flex align-items-center mb-1">
+                                                <i class="fas fa-envelope text-muted me-2"></i>
+                                                <span>{{ caretaker.email }}</span>
+                                            </div>
+                                            {% if caretaker.phone %}
+                                            <div class="d-flex align-items-center mb-1">
+                                                <i class="fas fa-phone text-muted me-2"></i>
+                                                <span>{{ caretaker.phone }}</span>
+                                            </div>
+                                            {% endif %}
+                                            {% if caretaker.alternate_phone %}
+                                            <div class="d-flex align-items-center mb-1">
+                                                <i class="fas fa-phone-alt text-muted me-2"></i>
+                                                <span>{{ caretaker.alternate_phone }}</span>
+                                            </div>
+                                            {% endif %}
+                                            {% if caretaker_profile %}
+                                            <div class="d-flex align-items-center mb-1">
+                                                <i class="fas fa-map-pin text-muted me-2"></i>
+                                                <span>{{ caretaker_profile.service_location }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        {% if caretaker.address %}
+                                        <div class="mb-0">
+                                            <div class="d-flex align-items-start mb-1">
+                                                <i class="fas fa-map-marker-alt text-muted me-2 mt-1"></i>
+                                                <div>
+                                                    {{ caretaker.address }}<br>
+                                                    {% if caretaker.city %}{{ caretaker.city }}{% endif %}
+                                                    {% if caretaker.state %}{{ caretaker.state }}{% endif %}
+                                                    {% if caretaker.pincode %}{{ caretaker.pincode }}{% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- For open requests -->
+                        {% if current_user.user_type == 'caretaker' %}
+                        <div class="text-center mt-4">
+                            <div class="action-buttons">
+                                <form method="POST" action="{{ url_for('accept_service_request', request_id=request.id) }}">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="fas fa-check me-2"></i>Accept Request
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('reject_service_request', request_id=request.id) }}">
+                                    <button type="submit" class="btn btn-danger btn-lg">
+                                        <i class="fas fa-times me-2"></i>Reject Request
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- For pending requests (caretaker has made an offer) - show pet owner actions -->
+                        {% if request.status == 'pending' and current_user.id == request.pet_owner_id %}
+                        <hr class="my-4">
+                        <div class="alert alert-info">
+                            <p class="mb-2"><i class="fas fa-info-circle me-2"></i>A caretaker has offered to provide services for your pet.</p>
+                            <p class="mb-0 small">Please review the details and accept or decline this request.</p>
+                        </div>
+                        <div class="text-center mt-4">
+                            <div class="action-buttons">
+                                <form method="POST" action="{{ url_for('owner_accept_request', request_id=request.id) }}">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="fas fa-check me-2"></i>Accept Offer
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('owner_decline_request', request_id=request.id) }}">
+                                    <button type="submit" class="btn btn-danger btn-lg">
+                                        <i class="fas fa-times me-2"></i>Decline Offer
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

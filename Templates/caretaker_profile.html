@@ -1,0 +1,680 @@
+{% extends "base.html" %}
+
+{% block title %}PetCare Connect - Caretaker Profile{% endblock %}
+
+{% block extracss %}
+<style>
+    .profile-header {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    }
+    
+    .profile-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 1.75rem;
+    }
+    
+    .service-badge {
+        font-size: 0.8rem;
+        margin-right: 0.3rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    .rating-stars {
+        color: #ffc107;
+    }
+    
+    .info-card {
+        height: 100%;
+        transition: transform 0.2s;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-3px);
+    }
+    
+    .compact-table th, .compact-table td {
+        padding: 0.5rem;
+    }
+    
+    .info-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    
+    .info-value {
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Compact Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active" aria-current="page">My Profile</li>
+    </ol>
+</nav>
+
+<!-- Streamlined Profile Header -->
+<div class="profile-header d-flex align-items-center mb-3">
+    <div class="profile-avatar me-3">
+        <i class="fas fa-user"></i>
+    </div>
+    <div class="flex-grow-1">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1 class="h4 mb-1">{{ user.name }}</h1>
+                <p class="text-muted small mb-1">
+                    <i class="fas fa-map-marker-alt me-1"></i> {{ user.city }}, {{ user.state }} {% if user.location %}({{ user.location }}){% endif %}
+                    <span class="mx-2">|</span>
+                    <i class="fas fa-envelope me-1"></i> {{ user.email }}
+                </p>
+                <div class="mb-1">
+                    <span class="badge bg-primary">Caretaker</span>
+                    <span class="badge bg-secondary ms-2">Joined {{ user.joined_date.strftime('%b %Y') }}</span>
+                </div>
+                <div class="rating-stars small">
+                    {% for i in range(5) %}
+                        {% if i < user.caretaker_profile.rating|int %}
+                            <i class="fas fa-star"></i>
+                        {% elif i < user.caretaker_profile.rating|round(0, 'common') %}
+                            <i class="fas fa-star-half-alt"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                    <span class="text-muted ms-1">({{ user.caretaker_profile.rating }})</span>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                <i class="fas fa-edit me-1"></i>Edit
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content with Grid System -->
+<div class="row g-3 mb-4">
+    <!-- Left Column - Account Info and Details -->
+    <div class="col-lg-8">
+        <div class="row g-3">
+            <!-- Account Information Card -->
+            <div class="col-md-6">
+                <div class="card shadow-sm info-card h-100">
+                    <div class="card-header py-2 bg-light">
+                        <h2 class="h6 mb-0 fw-bold">Account Information</h2>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item py-2">
+                                <div class="info-label">Name</div>
+                                <div class="info-value">{{ user.name }}</div>
+                            </li>
+                            <li class="list-group-item py-2">
+                                <div class="info-label">Email</div>
+                                <div class="info-value">{{ user.email }}</div>
+                            </li>
+                            <li class="list-group-item py-2">
+                                <div class="info-label">Location</div>
+                                <div class="info-value">{{ user.city }}, {{ user.state }}</div>
+                            </li>
+                            <li class="list-group-item py-2">
+                                <div class="info-label">Account Type</div>
+                                <div class="info-value">Caretaker</div>
+                            </li>
+                            <li class="list-group-item py-2">
+                                <div class="info-label">Member Since</div>
+                                <div class="info-value">{{ user.joined_date.strftime('%b %d, %Y') }}</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Account Actions Card -->
+            <div class="col-md-6">
+                <div class="card shadow-sm info-card h-100">
+                    <div class="card-header py-2 bg-light">
+                        <h2 class="h6 mb-0 fw-bold">Account Actions</h2>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-key me-2"></i>Change Password
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash me-2"></i>Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Caretaker Details Card -->
+            <div class="col-12">
+                <div class="card shadow-sm info-card">
+                    <div class="card-header py-2 bg-light d-flex justify-content-between align-items-center">
+                        <h2 class="h6 mb-0 fw-bold">Caretaker Details</h2>
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editServicesModal">
+                            <i class="fas fa-edit me-1"></i> Edit Services
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item py-2">
+                                <div class="info-label">Hourly Rate</div>
+                                <div class="info-value">₹{{ user.caretaker_profile.price_per_hour }}</div>
+                            </li>
+                            <li class="list-group-item py-2">
+                                <div class="info-label">Services Offered</div>
+                                <div class="info-value">
+                                    {% for service in user.caretaker_profile.get_services() %}
+                                        <span class="badge bg-light text-dark border service-badge">{{ service }}</span>
+                                    {% endfor %}
+                                </div>
+                            </li>
+                            <li class="list-group-item py-2">
+                                <div class="info-label">Description</div>
+                                <div class="info-value">{{ user.caretaker_profile.description }}</div>
+                            </li>
+                            <li class="list-group-item py-2">
+                                <div class="info-label">Rating</div>
+                                <div class="info-value">
+                                    <div class="rating-stars">
+                                        {% for i in range(5) %}
+                                            {% if i < user.caretaker_profile.rating|int %}
+                                                <i class="fas fa-star"></i>
+                                            {% elif i < user.caretaker_profile.rating|round(0, 'common') %}
+                                                <i class="fas fa-star-half-alt"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span class="text-muted ms-1">({{ user.caretaker_profile.rating }})</span>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reviews Card -->
+            <div class="col-12">
+                <div class="card shadow-sm info-card">
+                    <div class="card-header py-2 bg-light">
+                        <h2 class="h6 mb-0 fw-bold">Reviews</h2>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <!-- Mock reviews for design purposes -->
+                            <li class="list-group-item py-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="fw-bold small">John Wilson</div>
+                                    <div class="rating-stars small">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <p class="text-muted small mb-1">April 5, 2025</p>
+                                <p class="small mb-0">Great service! Very caring and professional with my Golden Retriever. Will definitely book again.</p>
+                            </li>
+                            
+                            <li class="list-group-item py-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="fw-bold small">Sarah Lee</div>
+                                    <div class="rating-stars small">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                </div>
+                                <p class="text-muted small mb-1">April 2, 2025</p>
+                                <p class="small mb-0">My cat was very comfortable with them. They followed all the care instructions perfectly.</p>
+                            </li>
+                            
+                            <li class="list-group-item py-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="fw-bold small">Rahul Kumar</div>
+                                    <div class="rating-stars small">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                </div>
+                                <p class="text-muted small mb-1">March 28, 2025</p>
+                                <p class="small mb-0">Punctual and reliable. My dog was well-exercised after the walking session. Would recommend!</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column - Stats and Availability -->
+    <div class="col-lg-4">
+        <div class="row g-3">
+            <!-- Booking Statistics Card -->
+            <div class="col-md-6 col-lg-12">
+                <div class="card shadow-sm info-card">
+                    <div class="card-header py-2 bg-light">
+                        <h2 class="h6 mb-0 fw-bold">Booking Statistics</h2>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item py-2 d-flex justify-content-between align-items-center">
+                                <div class="info-label">Total Bookings</div>
+                                <span class="badge bg-primary">{{ all_bookings|length }}</span>
+                            </li>
+                            <li class="list-group-item py-2 d-flex justify-content-between align-items-center">
+                                <div class="info-label">Upcoming</div>
+                                <span class="badge bg-success">{{ confirmed_bookings|length }}</span>
+                            </li>
+                            <li class="list-group-item py-2 d-flex justify-content-between align-items-center">
+                                <div class="info-label">Pending Approval</div>
+                                <span class="badge bg-warning text-dark">{{ pending_bookings|length }}</span>
+                            </li>
+                            <li class="list-group-item py-2 d-flex justify-content-between align-items-center">
+                                <div class="info-label">Completed</div>
+                                <span class="badge bg-secondary">{{ completed_bookings|length }}</span>
+                            </li>
+                        </ul>
+                        <div class="p-3">
+                            <div class="d-grid">
+                                <a href="{{ url_for('dashboard') }}#bookings-section" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-calendar me-2"></i>View All Bookings
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Earnings Summary Card removed as requested -->
+            
+            <!-- Availability Card -->
+            <div class="col-12">
+                <div class="card shadow-sm info-card">
+                    <div class="card-header py-2 bg-light">
+                        <h2 class="h6 mb-0 fw-bold">Availability</h2>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="availabilityToggle" checked>
+                                <label class="form-check-label small" for="availabilityToggle">Available for Bookings</label>
+                            </div>
+                            <div class="form-text small">Toggle this off if you're temporarily unavailable</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Working Hours</label>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <input type="time" class="form-control form-control-sm" value="09:00">
+                                </div>
+                                <div class="col-6">
+                                    <input type="time" class="form-control form-control-sm" value="18:00">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Working Days</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="monday" checked>
+                                    <label class="form-check-label small" for="monday">Mon</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="tuesday" checked>
+                                    <label class="form-check-label small" for="tuesday">Tue</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="wednesday" checked>
+                                    <label class="form-check-label small" for="wednesday">Wed</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="thursday" checked>
+                                    <label class="form-check-label small" for="thursday">Thu</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="friday" checked>
+                                    <label class="form-check-label small" for="friday">Fri</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="saturday" checked>
+                                    <label class="form-check-label small" for="saturday">Sat</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="sunday">
+                                    <label class="form-check-label small" for="sunday">Sun</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-save me-2"></i>Save Availability
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Active Pets Card -->
+            <div class="col-12">
+                <div class="card shadow-sm info-card">
+                    <div class="card-header py-2 bg-light">
+                        <h2 class="h6 mb-0 fw-bold">Active Pets Under Care</h2>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if active_pets %}
+                            <div class="list-group list-group-flush">
+                                {% for pet in active_pets %}
+                                    <div class="list-group-item">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                {% if pet.image_filename %}
+                                                    <img src="{{ url_for('static', filename='uploads/' + pet.image_filename) }}" 
+                                                         alt="{{ pet.name }}" 
+                                                         class="rounded-circle"
+                                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                                {% else %}
+                                                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center"
+                                                         style="width: 50px; height: 50px;">
+                                                        <i class="fas fa-paw text-muted"></i>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h3 class="h6 mb-1">{{ pet.name }}</h3>
+                                                <p class="text-muted small mb-0">
+                                                    {{ pet.breed|title if pet.breed else 'Unknown breed' }} • 
+                                                    {{ pet.species|title }}
+                                                </p>
+                                            </div>
+                                            <div class="ms-3">
+                                                <span class="badge bg-primary">Active</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="p-3 text-center text-muted">
+                                <i class="fas fa-paw mb-2" style="font-size: 2rem;"></i>
+                                <p class="mb-0">No active pets under your care at the moment.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Spacer for footer -->
+<div class="mb-5"></div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-profile-form" action="{{ url_for('edit_profile') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="edit-name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="edit-name" name="name" value="{{ user.name }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-location" class="form-label">Location</label>
+                        <select class="form-select" id="edit-location" name="location">
+                            <option value="" {% if not user.location %}selected{% endif %}>Select a state</option>
+                            <option value="Andhra Pradesh" {% if user.location == 'Andhra Pradesh' %}selected{% endif %}>Andhra Pradesh</option>
+                            <option value="Arunachal Pradesh" {% if user.location == 'Arunachal Pradesh' %}selected{% endif %}>Arunachal Pradesh</option>
+                            <option value="Assam" {% if user.location == 'Assam' %}selected{% endif %}>Assam</option>
+                            <option value="Bihar" {% if user.location == 'Bihar' %}selected{% endif %}>Bihar</option>
+                            <option value="Chhattisgarh" {% if user.location == 'Chhattisgarh' %}selected{% endif %}>Chhattisgarh</option>
+                            <option value="Delhi" {% if user.location == 'Delhi' %}selected{% endif %}>Delhi</option>
+                            <option value="Goa" {% if user.location == 'Goa' %}selected{% endif %}>Goa</option>
+                            <option value="Gujarat" {% if user.location == 'Gujarat' %}selected{% endif %}>Gujarat</option>
+                            <option value="Haryana" {% if user.location == 'Haryana' %}selected{% endif %}>Haryana</option>
+                            <option value="Himachal Pradesh" {% if user.location == 'Himachal Pradesh' %}selected{% endif %}>Himachal Pradesh</option>
+                            <option value="Jharkhand" {% if user.location == 'Jharkhand' %}selected{% endif %}>Jharkhand</option>
+                            <option value="Karnataka" {% if user.location == 'Karnataka' %}selected{% endif %}>Karnataka</option>
+                            <option value="Kerala" {% if user.location == 'Kerala' %}selected{% endif %}>Kerala</option>
+                            <option value="Madhya Pradesh" {% if user.location == 'Madhya Pradesh' %}selected{% endif %}>Madhya Pradesh</option>
+                            <option value="Maharashtra" {% if user.location == 'Maharashtra' %}selected{% endif %}>Maharashtra</option>
+                            <option value="Manipur" {% if user.location == 'Manipur' %}selected{% endif %}>Manipur</option>
+                            <option value="Meghalaya" {% if user.location == 'Meghalaya' %}selected{% endif %}>Meghalaya</option>
+                            <option value="Mizoram" {% if user.location == 'Mizoram' %}selected{% endif %}>Mizoram</option>
+                            <option value="Nagaland" {% if user.location == 'Nagaland' %}selected{% endif %}>Nagaland</option>
+                            <option value="Odisha" {% if user.location == 'Odisha' %}selected{% endif %}>Odisha</option>
+                            <option value="Punjab" {% if user.location == 'Punjab' %}selected{% endif %}>Punjab</option>
+                            <option value="Rajasthan" {% if user.location == 'Rajasthan' %}selected{% endif %}>Rajasthan</option>
+                            <option value="Sikkim" {% if user.location == 'Sikkim' %}selected{% endif %}>Sikkim</option>
+                            <option value="Tamil Nadu" {% if user.location == 'Tamil Nadu' %}selected{% endif %}>Tamil Nadu</option>
+                            <option value="Telangana" {% if user.location == 'Telangana' %}selected{% endif %}>Telangana</option>
+                            <option value="Tripura" {% if user.location == 'Tripura' %}selected{% endif %}>Tripura</option>
+                            <option value="Uttar Pradesh" {% if user.location == 'Uttar Pradesh' %}selected{% endif %}>Uttar Pradesh</option>
+                            <option value="Uttarakhand" {% if user.location == 'Uttarakhand' %}selected{% endif %}>Uttarakhand</option>
+                            <option value="West Bengal" {% if user.location == 'West Bengal' %}selected{% endif %}>West Bengal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-phone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="edit-phone" name="phone" value="{{ user.phone }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-alternate-phone" class="form-label">Alternate Phone</label>
+                        <input type="text" class="form-control" id="edit-alternate-phone" name="alternate_phone" value="{{ user.alternate_phone }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-address" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="edit-address" name="address" value="{{ user.address }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-city" class="form-label">City</label>
+                        <input type="text" class="form-control" id="edit-city" name="city" value="{{ user.city }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-state" class="form-label">State</label>
+                        <input type="text" class="form-control" id="edit-state" name="state" value="{{ user.state }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-pincode" class="form-label">Pincode</label>
+                        <input type="text" class="form-control" id="edit-pincode" name="pincode" value="{{ user.pincode }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-price" class="form-label">Hourly Rate (₹)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" class="form-control" id="edit-price" name="price_per_hour" value="{{ user.caretaker_profile.price_per_hour }}" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-description" class="form-label">Description</label>
+                        <textarea class="form-control" id="edit-description" name="description" rows="3">{{ user.caretaker_profile.description }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-service-location" class="form-label">Service Location</label>
+                        <select class="form-select" id="edit-service-location" name="service_location">
+                            <option value="" {% if not user.caretaker_profile.service_location %}selected{% endif %}>Select a state</option>
+                            <option value="Andhra Pradesh" {% if user.caretaker_profile.service_location == 'Andhra Pradesh' %}selected{% endif %}>Andhra Pradesh</option>
+                            <option value="Arunachal Pradesh" {% if user.caretaker_profile.service_location == 'Arunachal Pradesh' %}selected{% endif %}>Arunachal Pradesh</option>
+                            <option value="Assam" {% if user.caretaker_profile.service_location == 'Assam' %}selected{% endif %}>Assam</option>
+                            <option value="Bihar" {% if user.caretaker_profile.service_location == 'Bihar' %}selected{% endif %}>Bihar</option>
+                            <option value="Chhattisgarh" {% if user.caretaker_profile.service_location == 'Chhattisgarh' %}selected{% endif %}>Chhattisgarh</option>
+                            <option value="Delhi" {% if user.caretaker_profile.service_location == 'Delhi' %}selected{% endif %}>Delhi</option>
+                            <option value="Goa" {% if user.caretaker_profile.service_location == 'Goa' %}selected{% endif %}>Goa</option>
+                            <option value="Gujarat" {% if user.caretaker_profile.service_location == 'Gujarat' %}selected{% endif %}>Gujarat</option>
+                            <option value="Haryana" {% if user.caretaker_profile.service_location == 'Haryana' %}selected{% endif %}>Haryana</option>
+                            <option value="Himachal Pradesh" {% if user.caretaker_profile.service_location == 'Himachal Pradesh' %}selected{% endif %}>Himachal Pradesh</option>
+                            <option value="Jharkhand" {% if user.caretaker_profile.service_location == 'Jharkhand' %}selected{% endif %}>Jharkhand</option>
+                            <option value="Karnataka" {% if user.caretaker_profile.service_location == 'Karnataka' %}selected{% endif %}>Karnataka</option>
+                            <option value="Kerala" {% if user.caretaker_profile.service_location == 'Kerala' %}selected{% endif %}>Kerala</option>
+                            <option value="Madhya Pradesh" {% if user.caretaker_profile.service_location == 'Madhya Pradesh' %}selected{% endif %}>Madhya Pradesh</option>
+                            <option value="Maharashtra" {% if user.caretaker_profile.service_location == 'Maharashtra' %}selected{% endif %}>Maharashtra</option>
+                            <option value="Manipur" {% if user.caretaker_profile.service_location == 'Manipur' %}selected{% endif %}>Manipur</option>
+                            <option value="Meghalaya" {% if user.caretaker_profile.service_location == 'Meghalaya' %}selected{% endif %}>Meghalaya</option>
+                            <option value="Mizoram" {% if user.caretaker_profile.service_location == 'Mizoram' %}selected{% endif %}>Mizoram</option>
+                            <option value="Nagaland" {% if user.caretaker_profile.service_location == 'Nagaland' %}selected{% endif %}>Nagaland</option>
+                            <option value="Odisha" {% if user.caretaker_profile.service_location == 'Odisha' %}selected{% endif %}>Odisha</option>
+                            <option value="Punjab" {% if user.caretaker_profile.service_location == 'Punjab' %}selected{% endif %}>Punjab</option>
+                            <option value="Rajasthan" {% if user.caretaker_profile.service_location == 'Rajasthan' %}selected{% endif %}>Rajasthan</option>
+                            <option value="Sikkim" {% if user.caretaker_profile.service_location == 'Sikkim' %}selected{% endif %}>Sikkim</option>
+                            <option value="Tamil Nadu" {% if user.caretaker_profile.service_location == 'Tamil Nadu' %}selected{% endif %}>Tamil Nadu</option>
+                            <option value="Telangana" {% if user.caretaker_profile.service_location == 'Telangana' %}selected{% endif %}>Telangana</option>
+                            <option value="Tripura" {% if user.caretaker_profile.service_location == 'Tripura' %}selected{% endif %}>Tripura</option>
+                            <option value="Uttar Pradesh" {% if user.caretaker_profile.service_location == 'Uttar Pradesh' %}selected{% endif %}>Uttar Pradesh</option>
+                            <option value="Uttarakhand" {% if user.caretaker_profile.service_location == 'Uttarakhand' %}selected{% endif %}>Uttarakhand</option>
+                            <option value="West Bengal" {% if user.caretaker_profile.service_location == 'West Bengal' %}selected{% endif %}>West Bengal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Services Offered</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="services" value="Walking" id="service-walking" {% if 'Walking' in user.caretaker_profile.get_services() %}checked{% endif %}>
+                            <label class="form-check-label" for="service-walking">Walking</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="services" value="Feeding" id="service-feeding" {% if 'Feeding' in user.caretaker_profile.get_services() %}checked{% endif %}>
+                            <label class="form-check-label" for="service-feeding">Feeding</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="services" value="Grooming" id="service-grooming" {% if 'Grooming' in user.caretaker_profile.get_services() %}checked{% endif %}>
+                            <label class="form-check-label" for="service-grooming">Grooming</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="services" value="Training" id="service-training" {% if 'Training' in user.caretaker_profile.get_services() %}checked{% endif %}>
+                            <label class="form-check-label" for="service-training">Training</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="services" value="Sitting" id="service-sitting" {% if 'Sitting' in user.caretaker_profile.get_services() %}checked{% endif %}>
+                            <label class="form-check-label" for="service-sitting">Sitting</label>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="save-profile-changes">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Services Modal -->
+<div class="modal fade" id="editServicesModal" tabindex="-1" aria-labelledby="editServicesModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editServicesModalLabel">Edit Services</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-services-form" action="{{ url_for('update_caretaker_services') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="edit-price" class="form-label">Hourly Rate (₹)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" class="form-control" id="edit-price" name="price_per_hour" value="{{ user.caretaker_profile.price_per_hour }}" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Services Offered</label>
+                        <div class="row g-2">
+                            {% set current_services = user.caretaker_profile.get_services() %}
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="service-walking" name="services" value="Dog Walking" {% if 'Dog Walking' in current_services %}checked{% endif %}>
+                                    <label class="form-check-label" for="service-walking">Dog Walking</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="service-sitting" name="services" value="Pet Sitting" {% if 'Pet Sitting' in current_services %}checked{% endif %}>
+                                    <label class="form-check-label" for="service-sitting">Pet Sitting</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="service-grooming" name="services" value="Grooming" {% if 'Grooming' in current_services %}checked{% endif %}>
+                                    <label class="form-check-label" for="service-grooming">Grooming</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="service-training" name="services" value="Training" {% if 'Training' in current_services %}checked{% endif %}>
+                                    <label class="form-check-label" for="service-training">Training</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="service-daycare" name="services" value="Daycare" {% if 'Daycare' in current_services %}checked{% endif %}>
+                                    <label class="form-check-label" for="service-daycare">Daycare</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="service-boarding" name="services" value="Boarding" {% if 'Boarding' in current_services %}checked{% endif %}>
+                                    <label class="form-check-label" for="service-boarding">Boarding</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-description" class="form-label">Description</label>
+                        <textarea class="form-control" id="edit-description" name="description" rows="4" required>{{ user.caretaker_profile.description }}</textarea>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

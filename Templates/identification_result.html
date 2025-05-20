@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}PetCare Connect - Diet Recommendations{% endblock %}
+
+{% block extracss %}
+<style>
+    .pet-image {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .breed-name {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-card {
+        height: 100%;
+        transition: transform 0.3s ease;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .info-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('diet_recommendation') }}">Diet Recommendation</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Results</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-5 mb-4 mb-md-0">
+            <div class="text-center">
+                <img src="{{ image_path }}" alt="{{ breed }} {{ animal_type }}" class="pet-image">
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="h6 text-muted text-uppercase mb-2">Identification Result</div>
+            <h1 class="breed-name">{{ breed|title }}</h1>
+            <div class="badge bg-primary mb-3">{{ animal_type|title }}</div>
+            
+            <p class="lead">
+                {% if animal_type == 'dog' %}
+                The image shows a {{ breed|title }}, a dog breed known for its 
+                {% if breed == 'american' %}
+                    strong and confident temperament.
+                {% elif breed == 'basset' %}
+                    friendly and easygoing nature.
+                {% elif breed == 'beagle' %}
+                    curious and merry disposition.
+                {% elif breed == 'boxer' %}
+                    playful and energetic character.
+                {% elif breed == 'chihuahua' %}
+                    big personality in a small package.
+                {% elif breed == 'havanese' %}
+                    affectionate and social personality.
+                {% else %}
+                    distinctive characteristics and temperament.
+                {% endif %}
+                {% else %}
+                The image shows a {{ breed }}, a cat breed known for its 
+                {% if breed == 'Abyssinian' %}
+                    active and playful temperament.
+                {% elif breed == 'Bengal' %}
+                    wild appearance and energetic nature.
+                {% elif breed == 'Persian' %}
+                    sweet and gentle disposition.
+                {% elif breed == 'Siamese' %}
+                    vocal and social personality.
+                {% else %}
+                    distinctive characteristics and temperament.
+                {% endif %}
+                {% endif %}
+            </p>
+            
+            <div class="d-flex mb-4">
+                <a href="{{ url_for('diet_recommendation') }}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-redo me-2"></i>Try Another
+                </a>
+                <form action="{{ url_for('diet_recommendation') }}" method="post" class="me-2">
+                    <input type="hidden" name="pet_image" value="{{ image_path.split('/')[-1] }}">
+                    <input type="hidden" name="animal_type" value="{{ animal_type }}">
+                    <input type="hidden" name="detailed_diet" value="yes">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-utensils me-2"></i>Get Detailed Diet Plan
+                    </button>
+                </form>
+                <a href="{{ url_for('list_caretakers') }}?location={{ current_user.location }}" class="btn btn-primary">
+                    <i class="fas fa-hands-helping me-2"></i>Find Caretakers
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title h3 mb-4">Care Information for {{ breed|title }}</h2>
+                    <div class="row g-4">
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card info-card h-100 border-0">
+                                <div class="card-body text-center">
+                                    <div class="info-icon bg-primary-subtle text-primary mx-auto">
+                                        <i class="fas fa-utensils fa-lg"></i>
+                                    </div>
+                                    <h3 class="h5 card-title">Diet</h3>
+                                    <p class="card-text">{{ info.diet }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card info-card h-100 border-0">
+                                <div class="card-body text-center">
+                                    <div class="info-icon bg-success-subtle text-success mx-auto">
+                                        <i class="fas fa-running fa-lg"></i>
+                                    </div>
+                                    <h3 class="h5 card-title">Exercise</h3>
+                                    <p class="card-text">{{ info.exercise }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card info-card h-100 border-0">
+                                <div class="card-body text-center">
+                                    <div class="info-icon bg-info-subtle text-info mx-auto">
+                                        <i class="fas fa-shower fa-lg"></i>
+                                    </div>
+                                    <h3 class="h5 card-title">Grooming</h3>
+                                    <p class="card-text">{{ info.grooming }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card info-card h-100 border-0">
+                                <div class="card-body text-center">
+                                    <div class="info-icon bg-danger-subtle text-danger mx-auto">
+                                        <i class="fas fa-heartbeat fa-lg"></i>
+                                    </div>
+                                    <h3 class="h5 card-title">Health</h3>
+                                    <p class="card-text">{{ info.health }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title h3 mb-4">Additional Resources</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="h5 mb-3">Find Local Services</h4>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <a href="{{ url_for('list_caretakers') }}?location={{ current_user.location }}" class="text-decoration-none">
+                                        <i class="fas fa-hands-helping text-primary me-2"></i>Caretakers in {{ current_user.location }}
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="#" class="text-decoration-none">
+                                        <i class="fas fa-clinic-medical text-primary me-2"></i>Veterinarians nearby
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="text-decoration-none">
+                                        <i class="fas fa-store text-primary me-2"></i>Pet supplies and food
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="h5 mb-3">Learn More About {{ breed|title }}s</h4>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <a href="#" class="text-decoration-none">
+                                        <i class="fas fa-book text-primary me-2"></i>Breed information guide
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="#" class="text-decoration-none">
+                                        <i class="fas fa-video text-primary me-2"></i>Training videos
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="text-decoration-none">
+                                        <i class="fas fa-users text-primary me-2"></i>{{ breed|title }} owners community
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}PetCare Connect - Home{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1>Welcome to PetCare Connect</h1>
+                <p class="lead mb-4">Your trusted platform for pet care and diet recommendations</p>
+                <p class="mb-5">Connect with experienced caretakers, get personalized diet recommendations for your pet using AI, and access comprehensive care information - all in one place.</p>
+                <div class="d-grid gap-3 d-md-flex justify-content-md-start">
+                    <a href="{{ url_for('list_caretakers') }}" class="btn btn-primary btn-lg px-4 me-md-2">
+                        <i class="fas fa-search me-2"></i>Find Caretakers
+                    </a>
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('diet_recommendation') }}" class="btn btn-outline-primary btn-lg px-4">
+                            <i class="fas fa-utensils me-2"></i>Diet Recommendation
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('register') }}" class="btn btn-outline-primary btn-lg px-4">
+                            <i class="fas fa-user-plus me-2"></i>Join Now
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <div id="lottie-container" class="w-100" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="section-header">
+        <h2>Our Services</h2>
+        <p class="lead">Everything you need for your pet's well-being</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h3 class="h4 mt-4">Diet Recommendation</h3>
+                    <p class="card-text">Upload a photo of your pet and our AI will analyze it to provide personalized diet recommendations.</p>
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('diet_recommendation') }}" class="btn btn-outline-primary">Get Recommendations</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary">Login to Use</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle">
+                        <i class="fas fa-bone"></i>
+                    </div>
+                    <h3 class="h4 mt-4">Care Information</h3>
+                    <p class="card-text">Get detailed information about your pet's diet, exercise needs, grooming, and health concerns.</p>
+                    <a href="#care-info" class="btn btn-outline-primary">Learn More</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <h3 class="h4 mt-4">Caretaker Services</h3>
+                    <p class="card-text">Connect with qualified pet caretakers in your area who can help take care of your pet.</p>
+                    <a href="{{ url_for('list_caretakers') }}" class="btn btn-outline-primary">Find Caretakers</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="care-info" class="bg-light rounded-3 mb-5">
+        <div class="section-header">
+            <h2>Pet Care Information</h2>
+            <p class="lead">Understanding your pet's needs is key to their health and happiness</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="info-item">
+                    <h3><i class="fas fa-utensils"></i>Diet</h3>
+                    <p>Proper nutrition is essential for your pet's overall health. Different breeds have specific dietary requirements based on size, activity level, and genetic predispositions.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item">
+                    <h3><i class="fas fa-running"></i>Exercise</h3>
+                    <p>Regular exercise keeps your pet physically and mentally healthy. Some breeds require more activity than others, and our breed identification tool will help you understand the specific needs of your pet.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item">
+                    <h3><i class="fas fa-shower"></i>Grooming</h3>
+                    <p>Proper grooming prevents skin issues and keeps your pet comfortable. Grooming needs vary widely by breed, from daily brushing to professional grooming sessions.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item">
+                    <h3><i class="fas fa-heartbeat"></i>Health</h3>
+                    <p>Each breed has different health considerations. Being aware of breed-specific health issues helps you monitor and prevent potential problems throughout your pet's life.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row my-5">
+        <div class="col-12 text-center mb-4">
+            <h2 class="display-5 fw-bold">How It Works</h2>
+            <p class="lead">Simple steps to better pet care</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                <h2 class="mb-0">1</h2>
+            </div>
+            <h3 class="h4">Upload a Photo</h3>
+            <p>Take a clear photo of your pet and upload it to our system</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                <h2 class="mb-0">2</h2>
+            </div>
+            <h3 class="h4">Get Breed Information</h3>
+            <p>Our AI identifies your pet's breed and provides detailed care information</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                <h2 class="mb-0">3</h2>
+            </div>
+            <h3 class="h4">Find Local Caretakers</h3>
+            <p>Connect with qualified caretakers in your area who can help with your pet's needs</p>
+        </div>
+    </div>
+    
+
+
+    {% if not current_user.is_authenticated %}
+    <div class="bg-primary text-white p-5 rounded-3 my-5 text-center">
+        <h2 class="display-5 fw-bold mb-3">Ready to get started?</h2>
+        <p class="lead mb-4">Join our community of pet lovers and provide the best care for your furry friend</p>
+        <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-4">Sign Up Now</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const animation = lottie.loadAnimation({
+            container: document.getElementById('lottie-container'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: "{{ url_for('static', filename='lottie/pets-animation.json') }}"
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}PetCare Connect - Find Caretakers{% endblock %}
+
+{% block extracss %}
+<style>
+    .caretaker-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .caretaker-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .service-badge {
+        font-size: 0.8rem;
+        margin-right: 0.3rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    .rating-stars {
+        color: #ffc107;
+    }
+    
+    .filter-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    {% if current_user.is_authenticated and current_user.user_type == 'caretaker' %}
+        <!-- Caretaker View -->
+        <h1 class="mb-4">Pets Available</h1>
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0">Pets Available for Care</h2>
+            </div>
+            <div class="card-body">
+                {% if available_pets %}
+                    <div class="row g-4">
+                        {% for pet in available_pets %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        {% if pet.image_filename %}
+                                        <img src="{{ url_for('static', filename='uploads/' + pet.image_filename) }}" 
+                                             alt="{{ pet.name }}" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" 
+                                             style="width: 60px; height: 60px;">
+                                            <i class="fas fa-paw text-muted"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <h3 class="h5 card-title mb-1">{{ pet.name }}</h3>
+                                            <p class="text-muted small mb-0">{{ pet.species|title }} {% if pet.breed %}({{ pet.breed }}){% endif %}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="small mb-3">
+                                        <strong>Age:</strong> {{ pet.age }} years
+                                    </p>
+                                    
+                                    <p class="small mb-3">
+                                        <strong>Owner:</strong> {{ pet_owners.get(pet.id, 'Unknown') }}
+                                    </p>
+                                    
+                                    <!-- Check if there are any open requests for this pet -->
+                                    {% set has_open_request = false %}
+                                    {% for request in open_requests if request.pet_id == pet.id %}
+                                        {% set has_open_request = true %}
+                                        <div class="alert alert-info p-2 small">
+                                            <strong>Services Needed:</strong>
+                                            <div class="mt-1 mb-2">
+                                                {% for service in request.get_services_needed() %}
+                                                    <span class="badge bg-light text-dark border">{{ service }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            <strong>Time:</strong><br>
+                                            <small>
+                                                From: {{ request.start_time.strftime('%Y-%m-%d %H:%M') }}<br>
+                                                To: {{ request.end_time.strftime('%Y-%m-%d %H:%M') }}
+                                            </small>
+                                            
+                                            <form method="POST" action="{{ url_for('accept_service_request', request_id=request.id) }}" class="mt-2">
+                                                <button type="submit" class="btn btn-primary btn-sm w-100">
+                                                    <i class="fas fa-check me-1"></i>Accept Request
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% endfor %}
+                                    
+                                    {% if not has_open_request %}
+                                        <p class="text-muted small mb-3">No active service requests for this pet.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-paw fa-3x text-muted mb-3"></i>
+                        <p class="mb-0">No pets available at the moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <!-- Pet Owner View -->
+        <h1 class="mb-4">Find Caretakers</h1>
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Available Caretakers</h2>
+                    <form class="d-flex" method="GET">
+                        <input type="text" name="location" class="form-control form-control-sm me-2" 
+                               placeholder="Filter by location" value="{{ filter_location }}">
+                        <button type="submit" class="btn btn-light btn-sm">Filter</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if caretakers %}
+                    <div class="row g-4">
+                        {% for user, profile in caretakers %}
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h3 class="h5 card-title">{{ user.name }}</h3>
+                                    <p class="text-muted small mb-2">{{ user.location }}</p>
+                                    
+                                    <div class="mb-3">
+                                        <strong>Services:</strong>
+                                        <div class="mt-1">
+                                            {% for service in profile.get_services() %}
+                                                <span class="badge bg-light text-dark border">{{ service }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+
+                                    <p class="mb-3">
+                                        <strong>Rate:</strong> ₹{{ "%.2f"|format(profile.price_per_hour) }}/hour
+                                    </p>
+
+                                    {% if profile.description %}
+                                    <p class="small mb-3">{{ profile.description }}</p>
+                                    {% endif %}
+
+                                    {% if is_pet_owner %}
+                                    <a href="{{ url_for('book_caretaker', caretaker_id=user.id) }}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-calendar-plus me-1"></i>Book Now
+                                    </a>
+                                    {% else %}
+                                    <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-sign-in-alt me-1"></i>Login to Book
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
+                        <p class="mb-0">No caretakers found.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Reset filters button
+        const resetButton = document.getElementById('reset-filters');
+        resetButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = "{{ url_for('list_caretakers') }}";
+        });
+        
+        // Submit form when checkboxes change
+        const filterCheckboxes = document.querySelectorAll('.filter-checkbox');
+        filterCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                document.getElementById('filter-form').submit();
+            });
+        });
+    });
+</script>
+{% endblock %}

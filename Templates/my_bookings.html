@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}My Bookings - PetCare Connect{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">My Bookings</h2>
+
+            <!-- Pending Bookings -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">Pending Bookings</h5>
+                </div>
+                <div class="card-body">
+                    {% if pending_bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Pet Owner</th>
+                                        <th>Pet</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in pending_bookings %}
+                                    <tr>
+                                        <td>{{ booking.pet_owner.name }}</td>
+                                        <td>{{ booking.pet.name }}</td>
+                                        <td>{{ booking.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>{{ booking.end_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            <form method="POST" action="{{ url_for('accept_booking', booking_id=booking.id) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-check me-1"></i>Accept
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ url_for('decline_booking', booking_id=booking.id) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-times me-1"></i>Decline
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No pending bookings.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Confirmed Bookings -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Confirmed Bookings</h5>
+                </div>
+                <div class="card-body">
+                    {% if confirmed_bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Pet Owner</th>
+                                        <th>Pet</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in confirmed_bookings %}
+                                    <tr>
+                                        <td>{{ booking.pet_owner.name }}</td>
+                                        <td>{{ booking.pet.name }}</td>
+                                        <td>{{ booking.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>{{ booking.end_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            <span class="badge bg-success">Confirmed</span>
+                                            <form method="POST" action="{{ url_for('complete_booking', booking_id=booking.id) }}" class="d-inline ms-2">
+                                                <button type="submit" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-check-circle me-1"></i>Mark as Completed
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No confirmed bookings.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Completed Bookings -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Completed Bookings</h5>
+                </div>
+                <div class="card-body">
+                    {% if completed_bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Pet Owner</th>
+                                        <th>Pet</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Review</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in completed_bookings %}
+                                    <tr>
+                                        <td>{{ booking.pet_owner.name }}</td>
+                                        <td>{{ booking.pet.name }}</td>
+                                        <td>{{ booking.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>{{ booking.end_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            {% if booking.review %}
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-2">
+                                                        {% for i in range(booking.review.rating) %}
+                                                            <i class="fas fa-star text-warning"></i>
+                                                        {% endfor %}
+                                                    </div>
+                                                    <small class="text-muted">{{ booking.review.comment }}</small>
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">No review yet</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No completed bookings.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Cancelled Bookings -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Cancelled Bookings</h5>
+                </div>
+                <div class="card-body">
+                    {% if cancelled_bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Pet Owner</th>
+                                        <th>Pet</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in cancelled_bookings %}
+                                    <tr>
+                                        <td>{{ booking.pet_owner.name }}</td>
+                                        <td>{{ booking.pet.name }}</td>
+                                        <td>{{ booking.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>{{ booking.end_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            <span class="badge bg-danger">Cancelled</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No cancelled bookings.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extracss %}
+<style>
+    .card {
+        border: none;
+        border-radius: 0.5rem;
+    }
+    .card-header {
+        border-radius: 0.5rem 0.5rem 0 0 !important;
+    }
+    .table th {
+        font-weight: 600;
+        color: #495057;
+    }
+    .badge {
+        font-weight: 500;
+        padding: 0.5em 0.75em;
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %} 

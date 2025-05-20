@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Create Service Request{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Create Service Request</h2>
+                    
+                    <form method="POST" action="{{ url_for('create_service_request') }}">
+                        <div class="mb-3">
+                            <label for="pet_id" class="form-label">Select Pet</label>
+                            <select class="form-select" id="pet_id" name="pet_id" required>
+                                <option value="">Choose your pet...</option>
+                                {% for pet in pets %}
+                                <option value="{{ pet.id }}">{{ pet.name }} ({{ pet.breed }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Services Needed</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="services" value="Walking" id="service-walking">
+                                        <label class="form-check-label" for="service-walking">Walking</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="services" value="Feeding" id="service-feeding">
+                                        <label class="form-check-label" for="service-feeding">Feeding</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="services" value="Grooming" id="service-grooming">
+                                        <label class="form-check-label" for="service-grooming">Grooming</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="services" value="Training" id="service-training">
+                                        <label class="form-check-label" for="service-training">Training</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="services" value="Overnight Care" id="service-overnight">
+                                        <label class="form-check-label" for="service-overnight">Overnight Care</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="services" value="General Care" id="service-general">
+                                        <label class="form-check-label" for="service-general">General Care</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="start_time" class="form-label">Start Time</label>
+                            <input type="datetime-local" class="form-control" id="start_time" name="start_time" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="end_time" class="form-label">End Time</label>
+                            <input type="datetime-local" class="form-control" id="end_time" name="end_time" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Additional Details</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" 
+                                    placeholder="Please provide any specific instructions or requirements..."></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Request
+                            </button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

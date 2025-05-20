@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}PetCare Connect - Book Pet{% endblock %}
+
+{% block extracss %}
+<style>
+    .pet-info {
+        border-left: 4px solid #4e73df;
+        padding-left: 15px;
+    }
+    
+    .form-check-input:checked {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+    
+    .datetime-input {
+        border-radius: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Book Pet: {{ pet.name }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4 text-center">
+                            {% if pet.image_filename %}
+                            <img src="{{ url_for('static', filename='uploads/' + pet.image_filename) }}" 
+                                 alt="{{ pet.name }}" class="img-fluid rounded" style="max-height: 200px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center rounded" 
+                                 style="height: 200px; width: 100%;">
+                                <i class="fas fa-paw fa-4x text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <div class="pet-info h-100 d-flex flex-column justify-content-center">
+                                <h3 class="h4 mb-2">{{ pet.name }}</h3>
+                                <p class="mb-1"><strong>Species:</strong> {{ pet.species|title }}</p>
+                                <p class="mb-1"><strong>Breed:</strong> {{ pet.breed or 'Not specified' }}</p>
+                                <p class="mb-1"><strong>Age:</strong> {{ pet.age }} years</p>
+                                <p class="mb-1"><strong>Owner:</strong> {{ pet_owner.name }}</p>
+                                <p class="mb-0"><strong>Location:</strong> {{ pet_owner.city }}, {{ pet_owner.state }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('book_pet_for_care', pet_id=pet.id) }}">
+                        <div class="mb-3">
+                            <label for="start_time" class="form-label">Start Time</label>
+                            <input type="datetime-local" class="form-control datetime-input" id="start_time" name="start_time" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="end_time" class="form-label">End Time</label>
+                            <input type="datetime-local" class="form-control datetime-input" id="end_time" name="end_time" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Services Offered</label>
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="walking" id="walking" name="services_needed">
+                                        <label class="form-check-label" for="walking">Walking</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="feeding" id="feeding" name="services_needed">
+                                        <label class="form-check-label" for="feeding">Feeding</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="grooming" id="grooming" name="services_needed">
+                                        <label class="form-check-label" for="grooming">Grooming</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="sitting" id="sitting" name="services_needed">
+                                        <label class="form-check-label" for="sitting">Pet Sitting</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="training" id="training" name="services_needed">
+                                        <label class="form-check-label" for="training">Training</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="medical" id="medical" name="services_needed">
+                                        <label class="form-check-label" for="medical">Medical Care</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="description" class="form-label">Description (Optional)</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" 
+                                      placeholder="Describe the services you'd like to provide..."></textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-calendar-check me-1"></i>Submit Booking Request
+                            </button>
+                            <a href="{{ url_for('list_service_requests') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Back to Service Requests
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+    // Set minimum date for datetime inputs to current date and time
+    document.addEventListener('DOMContentLoaded', function() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+        
+        document.getElementById('start_time').min = minDateTime;
+        document.getElementById('end_time').min = minDateTime;
+        
+        // Ensure end time is after start time
+        document.getElementById('start_time').addEventListener('change', function() {
+            document.getElementById('end_time').min = this.value;
+        });
+    });
+</script>
+{% endblock %}

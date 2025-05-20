@@ -1,0 +1,408 @@
+{% extends "base.html" %}
+
+{% block title %}PetCare Connect - Dashboard{% endblock %}
+
+{% block extracss %}
+<style>
+    /* Basic Fixes */
+    .container .card {
+        height: auto !important;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Card Styling */
+    .card {
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+    
+    .card:hover {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .card-header {
+        background-color: white;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1rem 1.25rem;
+    }
+    
+    .card-header h5 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0;
+    }
+    
+    /* Welcome Section */
+    .welcome-card {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Pet Cards */
+    .pet-card {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .pet-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .pet-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+    
+    .pet-placeholder {
+        background-color: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        height: 180px;
+    }
+    
+    /* Service Request Cards */
+    .service-request-card {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        border-left: 3px solid transparent;
+    }
+    
+    .service-request-card.status-open {
+        border-left-color: #ffc107;
+    }
+    
+    .service-request-card.status-accepted {
+        border-left-color: #0dcaf0;
+    }
+    
+    .service-request-card.status-completed {
+        border-left-color: #198754;
+    }
+    
+    .service-request-card.status-cancelled {
+        border-left-color: #6c757d;
+    }
+    
+    .service-request-card:hover {
+        transform: translateY(-3px);
+    }
+    
+    /* Service Badges */
+    .service-badge {
+        font-size: 0.8rem;
+        margin-right: 0.3rem;
+        margin-bottom: 0.3rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 50rem;
+        background-color: #e9ecef;
+        color: #495057;
+        display: inline-block;
+    }
+    
+    /* Section Headers */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .section-header h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0;
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state p {
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Scrollable Containers */
+    .scrollable-container {
+        max-height: 500px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 5px;
+    }
+    
+    .scrollable-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .scrollable-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .scrollable-container::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 10px;
+    }
+    
+    .scrollable-container::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="h4 mb-1">Welcome, {{ current_user.name }}!</h2>
+                    <p class="text-muted mb-0">Manage your pets and service requests</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('add_pet') }}" class="btn btn-outline-success">
+                        <i class="fas fa-paw me-2"></i>Add Pet
+                    </a>
+                    <a href="{{ url_for('create_service_request') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Create Request
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Pets Section -->
+    <div class="card mb-4">
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">My Pets</h5>
+                <a href="{{ url_for('add_pet') }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-plus me-1"></i>Add New Pet
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if pets %}
+                <div class="row g-4">
+                    {% for pet in pets %}
+                    <div class="col-md-4">
+                        <div class="pet-card card h-100 shadow-sm">
+                            {% if pet.image_filename %}
+                            <img src="{{ url_for('static', filename='uploads/' + pet.image_filename) }}" 
+                                 class="pet-image" alt="{{ pet.name }}">
+                            {% else %}
+                            <div class="pet-placeholder">
+                                <i class="fas fa-paw fa-3x text-muted"></i>
+                            </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h3 class="h5 card-title mb-0">{{ pet.name }}</h3>
+                                    <span class="badge bg-primary rounded-pill">{{ pet.species|title }}</span>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="badge bg-light text-dark border">{{ pet.breed }}</span>
+                                    <small class="d-block text-muted mt-2">Age: {{ pet.age }} years</small>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-auto">
+                                    <a href="{{ url_for('edit_pet', pet_id=pet.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                            onclick="showDeleteModal('{{ pet.id }}', '{{ pet.name }}')">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-paw"></i>
+                    <p>You haven't added any pets yet.</p>
+                    <a href="{{ url_for('add_pet') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add a Pet
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Single Delete Pet Modal -->
+    <div class="modal fade" id="deletePetModal" tabindex="-1" aria-labelledby="deletePetModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deletePetModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete <span id="petName"></span>? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deletePetForm" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Service Request Modal -->
+    <div class="modal fade" id="deleteServiceModal" tabindex="-1" aria-labelledby="deleteServiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteServiceModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete the service request for <span id="servicePetName"></span>? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteServiceForm" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Requests Section -->
+    <div class="card mb-4">
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">My Service Requests</h5>
+                <a href="{{ url_for('create_service_request') }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-plus me-1"></i>New Request
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if service_requests %}
+                <div class="scrollable-container">
+                    <div class="row g-4">
+                        {% for request in service_requests %}
+                        <div class="col-md-6">
+                            <div class="service-request-card card h-100 shadow-sm status-{{ request.status }}">
+                                <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex align-items-center">
+                                        {% if request.pet.image_filename %}
+                                        <img src="{{ url_for('static', filename='uploads/' + request.pet.image_filename) }}" 
+                                             class="rounded-circle me-2" alt="{{ request.pet.name }}" width="40" height="40" style="object-fit: cover;">
+                                        {% else %}
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2" 
+                                             style="width: 40px; height: 40px;">
+                                            <i class="fas fa-paw text-muted"></i>
+                                        </div>
+                                        {% endif %}
+                                        <h3 class="h6 card-title mb-0">{{ request.pet.name }}</h3>
+                                    </div>
+                                    <span class="badge {% if request.status == 'open' %}bg-warning{% elif request.status == 'accepted' %}bg-info{% elif request.status == 'completed' %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {{ request.status|title }}
+                                    </span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="d-flex flex-wrap mb-2">
+                                        {% for service in request.get_services_needed() %}
+                                            <span class="service-badge">{{ service }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="fas fa-calendar-alt text-muted me-2"></i>
+                                        <small>{{ request.start_time.strftime('%b %d, %Y') }}</small>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-clock text-muted me-2"></i>
+                                        <small>{{ request.start_time.strftime('%H:%M') }} - {{ request.end_time.strftime('%H:%M') }}</small>
+                                    </div>
+                                </div>
+
+                                {% if request.caretaker %}
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user text-muted me-2"></i>
+                                        <small>{{ request.caretaker.name }}</small>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if request.description %}
+                                <div class="mb-3">
+                                    <p class="small text-muted mb-0">{{ request.description|truncate(100) }}</p>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="mt-3 d-flex justify-content-between">
+                                    <a href="{{ url_for('view_service_request', request_id=request.id) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>View Details
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                            onclick="showDeleteServiceModal('{{ request.id }}', '{{ request.pet.name }}')">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-clipboard-list"></i>
+                    <p>You haven't created any service requests yet.</p>
+                    <a href="{{ url_for('create_service_request') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Create Service Request
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+function showDeleteModal(petId, petName) {
+    document.getElementById('petName').textContent = petName;
+    document.getElementById('deletePetForm').action = "{{ url_for('delete_pet', pet_id=0) }}".replace('0', petId);
+    new bootstrap.Modal(document.getElementById('deletePetModal')).show();
+}
+
+function showDeleteServiceModal(requestId, petName) {
+    document.getElementById('servicePetName').textContent = petName;
+    document.getElementById('deleteServiceForm').action = "{{ url_for('delete_service_request', request_id=0) }}".replace('0', requestId);
+    new bootstrap.Modal(document.getElementById('deleteServiceModal')).show();
+}
+</script>
+{% endblock %}

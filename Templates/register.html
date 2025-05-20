@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+
+{% block title %}Register - PetCare Connect{% endblock %}
+
+{% block extracss %}
+<style>
+    .register-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        min-height: 100vh;
+        padding: 1.5rem 0;
+    }
+    .card {
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    }
+    .card-body {
+        padding: 2rem;
+    }
+    .form-control {
+        border-radius: 0.375rem;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem rgba(13, 202, 240, 0.15);
+        border-color: #0dcaf0;
+    }
+    .form-check-input:checked {
+        background-color: #0dcaf0;
+        border-color: #0dcaf0;
+    }
+    .btn-primary {
+        background-color: #0dcaf0;
+        border-color: #0dcaf0;
+        padding: 0.5rem 1.25rem;
+        font-weight: 600;
+        border-radius: 0.375rem;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+    .btn-primary:hover {
+        background-color: #0bb6d9;
+        border-color: #0bb6d9;
+        transform: translateY(-1px);
+    }
+    .btn-outline-secondary {
+        border-radius: 0.375rem;
+        padding: 0.5rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+    }
+    .section-title {
+        color: #0dcaf0;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.25rem;
+        border-bottom: 1px solid #e9ecef;
+        font-size: 1rem;
+    }
+    .user-type-selector {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        margin-bottom: 1.5rem;
+    }
+    .form-check-input {
+        width: 1.1em;
+        height: 1.1em;
+        margin-top: 0.15em;
+    }
+    .form-check-label {
+        font-size: 0.9rem;
+        padding-left: 0.25rem;
+    }
+    .invalid-feedback {
+        font-size: 0.8rem;
+    }
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.5rem;
+    }
+    .service-checkbox {
+        background-color: #f8f9fa;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        transition: all 0.2s ease;
+    }
+    .service-checkbox:hover {
+        background-color: #e9ecef;
+    }
+    .service-checkbox input:checked + label {
+        color: #0dcaf0;
+        font-weight: 600;
+    }
+    .mb-4 {
+        margin-bottom: 1rem !important;
+    }
+    .mb-3 {
+        margin-bottom: 0.75rem !important;
+    }
+    .row {
+        margin-right: -0.5rem;
+        margin-left: -0.5rem;
+    }
+    .col-md-6, .col-md-4 {
+        padding-right: 0.5rem;
+        padding-left: 0.5rem;
+    }
+    .input-group-text {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+    .gap-2 {
+        gap: 0.5rem !important;
+    }
+    .text-muted {
+        font-size: 0.9rem;
+    }
+    h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .container {
+        max-width: 1000px;
+    }
+    @media (min-width: 1200px) {
+        .container {
+            max-width: 1200px;
+        }
+        .services-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    @media (min-width: 992px) {
+        .col-lg-4 {
+            flex: 0 0 auto;
+            width: 33.33333333%;
+        }
+        .col-lg-6 {
+            flex: 0 0 auto;
+            width: 50%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="text-center">Create Your Account</h2>
+                        <p class="text-center text-muted mb-4">Join our community of pet lovers and caretakers</p>
+                        
+                        <form method="POST" action="{{ url_for('register') }}" class="needs-validation" novalidate>
+                            <!-- User Type Selection -->
+                            <div class="user-type-selector">
+                                <h5 class="section-title">I am a:</h5>
+                                <div class="d-flex gap-4 justify-content-center">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="user_type" id="petOwner" value="pet_owner" required>
+                                        <label class="form-check-label" for="petOwner">
+                                            <i class="fas fa-user me-2"></i>Pet Owner
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="user_type" id="caretaker" value="caretaker" required>
+                                        <label class="form-check-label" for="caretaker">
+                                            <i class="fas fa-hand-holding-heart me-2"></i>Caretaker
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Personal Information -->
+                            <h5 class="section-title">Personal Information</h5>
+                            <div class="row mb-4">
+                                <div class="col-lg-6 mb-3">
+                                    <label for="name" class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" required>
+                                    <div class="invalid-feedback">Please enter your full name.</div>
+                                </div>
+                                <div class="col-lg-6 mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                                    <div class="invalid-feedback">Please enter a valid email address.</div>
+                                </div>
+                            </div>
+
+                            <!-- Contact Information -->
+                            <h5 class="section-title">Contact Information</h5>
+                            <div class="row mb-4">
+                                <div class="col-lg-6 mb-3">
+                                    <label for="phone" class="form-label">Mobile Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9]{10}" placeholder="10-digit mobile number" required>
+                                    <div class="invalid-feedback">Please enter a valid 10-digit mobile number.</div>
+                                </div>
+                                <div class="col-lg-6 mb-3">
+                                    <label for="alternate_phone" class="form-label">Alternate Phone (Optional)</label>
+                                    <input type="tel" class="form-control" id="alternate_phone" name="alternate_phone" pattern="[0-9]{10}" placeholder="10-digit alternate number">
+                                    <div class="invalid-feedback">Please enter a valid 10-digit mobile number.</div>
+                                </div>
+                            </div>
+
+                            <!-- Address Information -->
+                            <h5 class="section-title">Address Information</h5>
+                            <div class="mb-4">
+                                <label for="address" class="form-label">Full Address</label>
+                                <textarea class="form-control" id="address" name="address" rows="2" placeholder="Enter your complete address" required></textarea>
+                                <div class="invalid-feedback">Please enter your complete address.</div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-lg-4 mb-3">
+                                    <label for="city" class="form-label">City</label>
+                                    <input type="text" class="form-control" id="city" name="city" placeholder="Enter your city" required>
+                                    <div class="invalid-feedback">Please enter your city.</div>
+                                </div>
+                                <div class="col-lg-4 mb-3">
+                                    <label for="state" class="form-label">State</label>
+                                    <input type="text" class="form-control" id="state" name="state" placeholder="Enter your state" required>
+                                    <div class="invalid-feedback">Please enter your state.</div>
+                                </div>
+                                <div class="col-lg-4 mb-3">
+                                    <label for="pincode" class="form-label">PIN Code</label>
+                                    <input type="text" class="form-control" id="pincode" name="pincode" pattern="[0-9]{6}" placeholder="6-digit PIN code" required>
+                                    <div class="invalid-feedback">Please enter a valid 6-digit PIN code.</div>
+                                </div>
+                            </div>
+
+                            <!-- Caretaker Specific Fields -->
+                            <div id="caretakerFields" style="display: none;">
+                                <h5 class="section-title">Caretaker Information</h5>
+                                <div class="mb-4">
+                                    <label for="location" class="form-label">Service Location <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="location" name="location" placeholder="Enter your service location" required>
+                                    <div class="invalid-feedback">Please enter your service location.</div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">Services Offered (Optional)</label>
+                                    <div class="services-grid">
+                                        <div class="service-checkbox">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="services" value="Dog Walking" id="walking">
+                                                <label class="form-check-label" for="walking">
+                                                    <i class="fas fa-walking me-2"></i>Dog Walking
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="service-checkbox">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="services" value="Pet Sitting" id="sitting">
+                                                <label class="form-check-label" for="sitting">
+                                                    <i class="fas fa-couch me-2"></i>Pet Sitting
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="service-checkbox">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="services" value="Grooming" id="grooming">
+                                                <label class="form-check-label" for="grooming">
+                                                    <i class="fas fa-cut me-2"></i>Grooming
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="service-checkbox">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="services" value="Training" id="training">
+                                                <label class="form-check-label" for="training">
+                                                    <i class="fas fa-graduation-cap me-2"></i>Training
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="service-checkbox">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="services" value="Daycare" id="daycare">
+                                                <label class="form-check-label" for="daycare">
+                                                    <i class="fas fa-sun me-2"></i>Daycare
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="service-checkbox">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="services" value="Boarding" id="boarding">
+                                                <label class="form-check-label" for="boarding">
+                                                    <i class="fas fa-home me-2"></i>Boarding
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="price_per_hour" class="form-label">Rate per Hour (₹) <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">₹</span>
+                                        <input type="number" class="form-control" id="price_per_hour" name="price_per_hour" min="0" step="50" placeholder="Enter your hourly rate" required>
+                                    </div>
+                                    <div class="invalid-feedback">Please enter your hourly rate.</div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="description" class="form-label">About Me (Optional)</label>
+                                    <textarea class="form-control" id="description" name="description" rows="2" placeholder="Tell us about your experience and why you'd make a great caretaker (optional)"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Password Fields -->
+                            <h5 class="section-title">Security</h5>
+                            <div class="row mb-4">
+                                <div class="col-lg-6 mb-3">
+                                    <label for="password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="password" name="password" placeholder="Create a strong password" required>
+                                    <div class="invalid-feedback">Please enter a password.</div>
+                                </div>
+                                <div class="col-lg-6 mb-3">
+                                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+                                    <div class="invalid-feedback">Please confirm your password.</div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-user-plus me-2"></i>Create Account
+                                </button>
+                                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Already have an account? Login
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userTypeRadios = document.querySelectorAll('input[name="user_type"]');
+    const caretakerFields = document.getElementById('caretakerFields');
+    const caretakerInputs = caretakerFields.querySelectorAll('input[required], textarea[required]');
+
+    userTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'caretaker') {
+                caretakerFields.style.display = 'block';
+                // Only set required for non-optional fields
+                caretakerInputs.forEach(input => {
+                    if (input.name === 'location' || input.name === 'price_per_hour') {
+                        input.required = true;
+                    }
+                });
+            } else {
+                caretakerFields.style.display = 'none';
+                caretakerInputs.forEach(input => input.required = false);
+            }
+        });
+    });
+
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+
+    // Password strength indicator
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+    
+    confirmPassword.addEventListener('input', function() {
+        if (this.value !== password.value) {
+            this.setCustomValidity('Passwords do not match');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+});
+</script>
+{% endblock %}

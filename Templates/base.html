@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PetCare Connect{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Toastify CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Base Styles */
+        .dropdown-header {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+        }
+        
+        /* Notification Styles */
+        .notification-dropdown {
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 0;
+        }
+        
+        .notification-item {
+            border-bottom: 1px solid rgba(0,0,0,.05);
+            padding: 0.75rem 1rem;
+            white-space: normal;
+        }
+        
+        .notification-item:hover {
+            background-color: rgba(0,0,0,.03);
+        }
+        
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* Notification Badge Animation */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .badge.bg-danger {
+            animation: pulse 2s infinite;
+        }
+    </style>
+    {% block extracss %}{% endblock %}
+    <!-- Lottie Player -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.8/lottie.min.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
+                <i class="fas fa-paw me-2"></i>PetCare Connect
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    {% if current_user.is_authenticated and current_user.user_type == 'caretaker' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('available_pets') }}">
+                                <i class="fas fa-paw me-1"></i>Pets Available
+                            </a>
+                        </li>
+                    {% elif current_user.is_authenticated and current_user.user_type == 'pet_owner' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('list_caretakers') }}">
+                                <i class="fas fa-search me-1"></i>Find Caretakers
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('list_caretakers') }}">
+                                <i class="fas fa-search me-1"></i>Find Caretakers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('available_pets') }}">
+                                <i class="fas fa-paw me-1"></i>Available Pets
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('diet_recommendation') }}">Diet Recommendation</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                        </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        <!-- Notifications Dropdown -->
+                        <li class="nav-item dropdown me-2">
+                            <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-bell"></i>
+                                {% if unread_notifications %}
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        {{ unread_notifications }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end notification-dropdown" style="width: 300px;">
+                                <li>
+                                    <h6 class="dropdown-header">Notifications</h6>
+                                </li>
+                                {% if all_notifications %}
+                                    {% for notification in all_notifications %}
+                                        <li>
+                                            <div class="dropdown-item notification-item {% if notification.is_read %}text-muted{% endif %}">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0">
+                                                        <i class="fas fa-bell text-primary me-2"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-2">
+                                                        <p class="mb-0 small">{{ notification.message }}</p>
+                                                        <small class="text-muted">{% if notification is mapping %}{{ notification.created_at }}{% else %}{{ notification.created_at.strftime('%b %d, %Y, %I:%M %p') }}{% endif %}</small>
+                                                    </div>
+                                                    <div class="ms-2">
+                                                        {% if (notification is mapping and not notification.is_read) or (notification is not mapping and not notification.is_read) %}
+                                                            <button class="btn btn-sm btn-outline-secondary mark-read-btn" 
+                                                                    data-notification-id="{% if notification is mapping %}{{ notification.id }}{% else %}{{ notification.id }}{% endif %}">
+                                                                <i class="fas fa-check"></i>
+                                                            </button>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary">Read</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                {% else %}
+                                    <li>
+                                        <div class="dropdown-item text-center text-muted py-3">
+                                            <i class="fas fa-bell-slash me-1"></i> No new notifications
+                                        </div>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        
+                        <!-- User Profile Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i>{{ current_user.name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages are now handled by Toastify -->
+
+    <!-- Main Content -->
+    <main class="container py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>PetCare Connect</h5>
+                    <p>Helping pets and owners live their best lives together.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('index') }}" class="text-decoration-none text-white-50">Home</a></li>
+                        <li><a href="{{ url_for('list_caretakers') }}" class="text-decoration-none text-white-50">Find Caretakers</a></li>
+                        {% if current_user.is_authenticated %}
+                            <li><a href="{{ url_for('diet_recommendation') }}" class="text-decoration-none text-white-50">Diet Recommendation</a></li>
+                            <li><a href="{{ url_for('dashboard') }}" class="text-decoration-none text-white-50">Dashboard</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact Us</h5>
+                    <p>Email: support@petcareconnect.com</p>
+                    <p>Phone: +91 123-456-7890</p>
+                </div>
+            </div>
+            <div class="row mt-3 pt-3 border-top border-secondary">
+                <div class="col text-center">
+                    <p class="mb-0">&copy; {{ current_year }} PetCare Connect. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Toastify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <!-- JavaScript for Toastify Flash Messages -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            /* Jinja2 template code is processed server-side */
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        (function() {
+                            var bgColor = '#4e73df'; // Default blue
+                            var textColor = '#fff';
+                            var duration = 5000;
+                            var msg = "{{ message|safe|replace('"', '\\"')|replace("'", "\\'") }}";
+                            var cat = "{{ category }}";
+                            
+                            if (cat === 'danger' || cat === 'error') {
+                                bgColor = '#e74a3b'; // Red for errors
+                                duration = 7000; // Longer duration for errors
+                            } else if (cat === 'success') {
+                                bgColor = '#1cc88a'; // Green for success
+                            } else if (cat === 'warning') {
+                                bgColor = '#f6c23e'; // Yellow for warnings
+                                textColor = '#000';
+                            }
+                            
+                            Toastify({
+                                text: msg,
+                                duration: duration,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                backgroundColor: bgColor,
+                                stopOnFocus: true,
+                                className: "toastify-custom",
+                                style: {
+                                    color: textColor,
+                                    borderRadius: "8px",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                                    fontFamily: "'Inter', sans-serif",
+                                    fontSize: "14px",
+                                    padding: "12px 20px"
+                                }
+                            }).showToast();
+                        })();
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            /* Jinja2 template code ends here */
+        });
+    </script>
+    
+    {% block extrajs %}{% endblock %}
+    
+    <!-- Add CSS for read notifications -->
+    <style>
+        .read-notification {
+            background-color: #f8f9fa;
+        }
+        .read-notification a {
+            opacity: 0.8;
+        }
+    </style>
+    
+    <!-- Notification JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners to all mark-read buttons
+            const markReadButtons = document.querySelectorAll('.mark-read-btn');
+            markReadButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const notificationId = this.getAttribute('data-notification-id');
+                    
+                    // Send AJAX request to mark notification as read
+                    fetch('/mark-notification-read', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id: notificationId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update UI to show notification as read
+                            const notificationItem = button.closest('.notification-item');
+                            notificationItem.classList.add('text-muted');
+                            
+                            // Replace button with 'Read' badge
+                            const badgeSpan = document.createElement('span');
+                            badgeSpan.className = 'badge bg-secondary';
+                            badgeSpan.textContent = 'Read';
+                            button.parentNode.replaceChild(badgeSpan, button);
+                            
+                            // Update notification count in badge
+                            const badge = document.querySelector('#notificationsDropdown .badge');
+                            if (badge) {
+                                const count = parseInt(badge.textContent) - 1;
+                                if (count <= 0) {
+                                    badge.remove();
+                                } else {
+                                    badge.textContent = count;
+                                }
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error marking notification as read:', error);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

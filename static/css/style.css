@@ -1,0 +1,458 @@
+/* PetCare Connect - Custom Styles */
+
+/* Global Styles */
+:root {
+    --primary-color: #00CED1; /* Dark Turquoise */
+    --secondary-color: #008B8B; /* Dark Cyan */
+    --accent-color: #20B2AA; /* Light Sea Green */
+    --text-color: #2F4F4F; /* Dark Slate Gray */
+    --text-light: #5F9EA0; /* Cadet Blue */
+    --background-light: #F0FFFF; /* Azure */
+    --background-medium: #E0FFFF; /* Light Cyan */
+    --light-gray: #E0FFFF; /* Light Cyan */
+    --medium-gray: #B0E0E6; /* Powder Blue */
+    --dark-gray: #2F4F4F; /* Dark Slate Gray */
+    --white: #ffffff;
+    --shadow: 0 2px 15px rgba(0, 139, 139, 0.1);
+    --shadow-strong: 0 4px 20px rgba(0, 139, 139, 0.15);
+    --transition: all 0.3s ease;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.display-4 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: var(--primary-color) !important;
+    box-shadow: var(--shadow-strong);
+    padding: 1rem 0;
+}
+
+.navbar-dark .navbar-brand,
+.navbar-dark .nav-link {
+    color: var(--text-color) !important;
+    font-weight: 500;
+}
+
+.navbar-dark .nav-link:hover {
+    color: var(--accent-color) !important;
+}
+
+/* Button Styling */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    color: var(--white);
+    font-weight: 500;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+    color: var(--secondary-color);
+    border: 2px solid var(--primary-color);
+    font-weight: 500;
+    background: transparent;
+    position: relative;
+    z-index: 1;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--white);
+    transform: translateY(-2px);
+}
+
+/* Hero Section */
+.hero-section {
+    padding: 4rem 0;
+    background: linear-gradient(135deg, var(--white) 0%, var(--background-light) 100%);
+    margin-bottom: 3rem;
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.hero-section h1 {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    font-size: 3.2rem;
+    line-height: 1.2;
+    font-weight: 700;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.hero-section .lead {
+    font-size: 1.25rem;
+    color: var(--secondary-color);
+    margin-bottom: 2rem;
+    font-weight: 500;
+}
+
+.hero-section p {
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+/* Cards and Services */
+.card {
+    border: 1px solid var(--medium-gray);
+    transition: var(--transition);
+    border-radius: 12px;
+    overflow: hidden;
+    height: 100%;
+    background-color: var(--white);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-strong);
+    border-color: var(--primary-color);
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.card h3 {
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+.card p {
+    color: var(--text-color);
+}
+
+.feature-icon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+}
+
+.feature-icon i {
+    font-size: 1.75rem;
+    color: var(--white);
+}
+
+/* Container Spacing */
+.container {
+    max-width: 1200px;
+    padding: 0 1.5rem;
+}
+
+.row {
+    margin-bottom: 2rem;
+}
+
+/* Section Headers */
+.section-header {
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.section-header h2 {
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+    font-size: 2.5rem;
+    font-weight: 700;
+    position: relative;
+    display: inline-block;
+}
+
+.section-header h2:after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    border-radius: 3px;
+}
+
+.section-header .lead {
+    color: var(--text-color);
+    max-width: 600px;
+    margin: 1.5rem auto 0;
+    font-size: 1.2rem;
+}
+
+/* Care Info Section */
+#care-info {
+    background-color: var(--background-light);
+    border: 1px solid var(--medium-gray);
+    padding: 3rem;
+}
+
+#care-info h3 {
+    color: var(--secondary-color);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+#care-info p {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+#care-info i {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.5rem;
+    margin-right: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(0, 139, 139, 0.1);
+}
+
+#care-info .info-item {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--medium-gray);
+    transition: var(--transition);
+    height: 100%;
+}
+
+#care-info .info-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-strong);
+    border-color: var(--primary-color);
+}
+
+#care-info .row {
+    margin-top: 2rem;
+}
+
+/* Section Backgrounds */
+.bg-primary {
+    background-color: var(--primary-color) !important;
+    color: var(--text-color);
+}
+
+.bg-light {
+    background-color: var(--background-light) !important;
+}
+
+body {
+    background-color: var(--white);
+}
+
+/* Feature Icons */
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
+    color: var(--white);
+}
+
+/* Card Animations */
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Pet Images */
+.pet-image {
+    object-fit: cover;
+}
+
+.pet-placeholder {
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+}
+
+/* Ratings */
+.rating-stars {
+    color: #ffc107;
+}
+
+/* Service Badges */
+.service-badge {
+    font-size: 0.8rem;
+    margin-right: 0.3rem;
+    margin-bottom: 0.3rem;
+}
+
+/* Status Badges */
+.status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+/* Image Preview */
+.preview-container {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.preview-placeholder {
+    text-align: center;
+    color: #6c757d;
+}
+
+/* Profile Styles */
+.profile-header {
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 2.5rem;
+}
+
+/* Profile Page Structure Adjustments */
+.profile-header {
+    padding: 1rem 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+}
+.profile-avatar {
+    width: 80px !important;
+    height: 80px !important;
+    font-size: 2rem !important;
+}
+.profile-section {
+    margin-bottom: 1.5rem !important;
+}
+.profile-section .card-body {
+    padding: 1rem !important;
+}
+.profile-section .row {
+    margin-bottom: 1rem !important;
+}
+
+/* Further Compact Layout for Profile Sections */
+.profile-section .card-body {
+    padding: 0.75rem !important;
+}
+.profile-section .row {
+    margin-bottom: 0.5rem !important;
+}
+.profile-section .card-title {
+    margin-bottom: 0.75rem !important;
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    transition: transform 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Breed Identification Results */
+.breed-name {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.info-card {
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+}
+
+.info-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+/* Footer Styles */
+footer {
+    margin-top: 3rem;
+}
+
+/* Form Styles */
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+    
+    .breed-name {
+        font-size: 2rem;
+    }
+}

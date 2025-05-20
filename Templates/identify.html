@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}PetCare Connect - Diet Recommendation{% endblock %}
+
+{% block extracss %}
+<style>
+    .preview-container {
+        width: 250px;
+        height: 250px;
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .preview-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: cover;
+    }
+    
+    .preview-placeholder {
+        text-align: center;
+        color: #6c757d;
+    }
+    
+    .custom-file-upload {
+        cursor: pointer;
+    }
+    
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+    }
+    
+    .loading-text {
+        margin-top: 10px;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Get Diet Recommendations for Your Pet</h1>
+        <p class="lead mb-4">Upload a clear photo of your pet, and our AI will analyze it to provide personalized diet recommendations.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <h2 class="card-title h4 mb-4">Upload Pet Photo</h2>
+                
+                <form method="POST" action="{{ url_for('diet_recommendation') }}" enctype="multipart/form-data" id="identify-form">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label">Pet Type</label>
+                            <div class="d-flex">
+                                <div class="form-check me-4">
+                                    <input class="form-check-input" type="radio" name="animal_type" id="type-dog" value="dog" checked>
+                                    <label class="form-check-label" for="type-dog">
+                                        <i class="fas fa-dog me-1"></i> Dog
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="animal_type" id="type-cat" value="cat">
+                                    <label class="form-check-label" for="type-cat">
+                                        <i class="fas fa-cat me-1"></i> Cat
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <div class="preview-container mx-auto">
+                                <div class="preview-placeholder" id="preview-placeholder">
+                                    <i class="fas fa-camera fa-3x mb-2"></i>
+                                    <p>Image preview will appear here</p>
+                                </div>
+                                <img id="image-preview" style="display: none;">
+                                <div class="loading-overlay" id="loading-overlay" style="display: none;">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="loading-text">Analyzing image...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="pet_image" class="form-label d-block">Upload Image</label>
+                        <input type="file" class="form-control" id="pet_image" name="pet_image" accept="image/*" required>
+                        <div class="form-text">Please upload a clear, well-lit photo of your pet. For best results, make sure your pet is the main subject in the image.</div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="mb-3">
+                        <h5>Save to Your Profile (Optional)</h5>
+                        <p class="text-muted small">You can save this pet to your profile for future reference</p>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="pet_name" class="form-label">Pet's Name</label>
+                            <input type="text" class="form-control" id="pet_name" name="pet_name" placeholder="Optional">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="pet_age" class="form-label">Pet's Age (years)</label>
+                            <input type="number" class="form-control" id="pet_age" name="pet_age" min="0" max="30" step="0.1" placeholder="Optional">
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary" id="identify-button">
+                            <i class="fas fa-utensils me-2"></i>Get Diet Recommendations
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 d-flex flex-column gap-3">
+        <div class="card shadow">
+            <div class="card-body p-3">
+                <h3 class="h5 card-title">Tips for Best Results</h3>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Use good lighting</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Capture your pet's face clearly</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Take photo from front or side view</li>
+                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Avoid blurry or dark images</li>
+                    <li><i class="fas fa-check-circle text-success me-2"></i>One pet per image</li>
+                </ul>
+            </div>
+        </div>
+        <div class="card shadow">
+            <div class="card-body p-3">
+                <h3 class="h5 card-title">What You'll Get</h3>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="fas fa-paw text-primary me-2"></i>Pet analysis</li>
+                    <li class="mb-2"><i class="fas fa-utensils text-primary me-2"></i>Diet recommendations</li>
+                    <li class="mb-2"><i class="fas fa-running text-primary me-2"></i>Exercise requirements</li>
+                    <li class="mb-2"><i class="fas fa-shower text-primary me-2"></i>Grooming needs</li>
+                    <li><i class="fas fa-heartbeat text-primary me-2"></i>Health considerations</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('pet_image');
+        const imagePreview = document.getElementById('image-preview');
+        const previewPlaceholder = document.getElementById('preview-placeholder');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const identifyForm = document.getElementById('identify-form');
+        const identifyButton = document.getElementById('identify-button');
+        
+        // Show image preview when file is selected
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    previewPlaceholder.style.display = 'none';
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+        
+        // Show loading overlay when form is submitted
+        identifyForm.addEventListener('submit', function() {
+            if (fileInput.files && fileInput.files[0]) {
+                loadingOverlay.style.display = 'flex';
+                identifyButton.disabled = true;
+            }
+        });
+    });
+</script>
+{% endblock %}

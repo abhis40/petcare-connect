@@ -1,0 +1,485 @@
+{% extends "base.html" %}
+
+{% block title %}Service Request Details{% endblock %}
+
+{% block extracss %}
+<style>
+    /* Main Card Styling */
+    .request-details-card {
+        border-radius: 15px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        border: none;
+        background-color: #fff;
+        margin-bottom: 2rem;
+    }
+    
+    /* Header Section */
+    .request-header {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        color: white;
+        padding: 2.5rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .request-header::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        right: -20px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        z-index: 1;
+    }
+    
+    .request-header h1 {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        font-size: 1.75rem;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .request-id {
+        opacity: 0.8;
+        font-size: 0.95rem;
+        position: relative;
+        z-index: 2;
+    }
+    
+    /* Body Section */
+    .request-body {
+        padding: 2.5rem;
+        background-color: #fff;
+    }
+    
+    /* Pet Information */
+    .pet-profile {
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        height: 100%;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+        transition: all 0.3s ease;
+    }
+    
+    .pet-profile:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .pet-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.25rem;
+    }
+    
+    .pet-image-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: #4e73df;
+        border: 4px solid white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin: 0 auto 1.25rem;
+    }
+    
+    .pet-name {
+        font-weight: 700;
+        font-size: 1.4rem;
+        margin-bottom: 0.25rem;
+        color: #333;
+    }
+    
+    .pet-breed {
+        color: #6c757d;
+        font-size: 0.95rem;
+        margin-bottom: 0;
+    }
+    
+    /* Info Sections */
+    .request-info-item {
+        margin-bottom: 2rem;
+        background-color: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        border-left: 4px solid #4e73df;
+    }
+    
+    .request-info-item:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .request-info-item h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #4e73df;
+        display: flex;
+        align-items: center;
+    }
+    
+    .request-info-item h3 i {
+        margin-right: 0.5rem;
+    }
+    
+    .request-info-item p {
+        margin-bottom: 0.5rem;
+        color: #495057;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    
+    .request-info-item p:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* Status Badge */
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .status-open {
+        background-color: #4e73df;
+        color: white;
+    }
+    
+    .status-accepted {
+        background-color: #1cc88a;
+        color: white;
+    }
+    
+    .status-completed {
+        background-color: #36b9cc;
+        color: white;
+    }
+    
+    .status-declined {
+        background-color: #e74a3b;
+        color: white;
+    }
+    
+    /* Service Badges */
+    .service-badge {
+        font-size: 0.75rem;
+        margin-right: 0.3rem;
+        margin-bottom: 0.3rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50rem;
+        background-color: #edf2ff;
+        color: #4e73df;
+        display: inline-block;
+        font-weight: 500;
+        border: 1px solid rgba(78, 115, 223, 0.2);
+    }
+    
+    /* Time Period Display */
+    .time-period {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .time-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .time-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .time-item i {
+        margin-right: 0.75rem;
+        color: #4e73df;
+        width: 18px;
+        text-align: center;
+    }
+    
+    /* Contact Info */
+    .contact-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .contact-info i {
+        margin-right: 0.75rem;
+        color: #4e73df;
+        width: 18px;
+        text-align: center;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .action-buttons .btn {
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        border-radius: 8px;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .action-buttons .btn i {
+        margin-right: 0.5rem;
+    }
+    
+    .btn-success {
+        background-color: #1cc88a;
+        border-color: #1cc88a;
+    }
+    
+    .btn-success:hover {
+        background-color: #17a673;
+        border-color: #17a673;
+    }
+    
+    .btn-danger {
+        background-color: #e74a3b;
+        border-color: #e74a3b;
+    }
+    
+    .btn-danger:hover {
+        background-color: #d52a1a;
+        border-color: #d52a1a;
+    }
+    
+    /* Back Button */
+    .back-button {
+        display: block;
+        margin-bottom: 1rem;
+        color: #4e73df;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .back-button:hover {
+        color: #224abe;
+        transform: translateX(-3px);
+    }
+    
+    .back-button i {
+        margin-right: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Back Button -->
+            <a href="{{ url_for('dashboard') }}" class="back-button mb-3">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            
+            <div class="request-details-card">
+                <!-- Header Section -->
+                <div class="request-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="h3">Service Request Details</h1>
+                        <span class="status-badge status-{{ request.status }}">{{ request.status|capitalize }}</span>
+                    </div>
+                    <p class="request-id mb-0">Request #{{ request.id }} • Created {{ request.created_at.strftime('%b %d, %Y') }}</p>
+                </div>
+                
+                <!-- Main Content -->
+                <div class="request-body">
+                    <div class="row">
+                        <!-- Pet Profile Section -->
+                        <div class="col-md-4 mb-4 mb-md-0">
+                            <div class="pet-profile">
+                                {% if request.pet.image_filename %}
+                                <img src="{{ url_for('static', filename='uploads/' + request.pet.image_filename) }}" 
+                                     class="pet-image" alt="{{ request.pet.name }}">
+                                {% else %}
+                                <div class="pet-image-placeholder">
+                                    <i class="fas fa-paw"></i>
+                                </div>
+                                {% endif %}
+                                <h2 class="pet-name">{{ request.pet.name }}</h2>
+                                <p class="pet-breed">{{ request.pet.breed }}</p>
+                                
+                                <!-- Pet Quick Info -->
+                                <div class="mt-3 text-start">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-birthday-cake text-primary me-2" style="width: 20px;"></i>
+                                        <span>{{ request.pet.age if request.pet.age else 'Age not provided' }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-weight text-primary me-2" style="width: 20px;"></i>
+                                        <span>{{ request.pet.weight if request.pet.weight else 'Weight not provided' }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-venus-mars text-primary me-2" style="width: 20px;"></i>
+                                        <span>{{ request.pet.gender if request.pet.gender else 'Gender not provided' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Request Details Section -->
+                        <div class="col-md-8">
+                            <!-- Services Needed -->
+                            <div class="request-info-item">
+                                <h3><i class="fas fa-list-check"></i>Services Needed</h3>
+                                <div class="mt-1">
+                                    {% for service in request.get_services_needed() %}
+                                        <span class="service-badge">{{ service }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <!-- Service Period -->
+                            <div class="request-info-item">
+                                <h3><i class="far fa-calendar-alt"></i>Service Period</h3>
+                                <div class="time-period">
+                                    <div class="time-item">
+                                        <i class="fas fa-hourglass-start"></i>
+                                        <span>From: {{ request.start_time.strftime('%A, %B %d, %Y at %I:%M %p') }}</span>
+                                    </div>
+                                    <div class="time-item">
+                                        <i class="fas fa-hourglass-end"></i>
+                                        <span>To: {{ request.end_time.strftime('%A, %B %d, %Y at %I:%M %p') }}</span>
+                                    </div>
+                                    {% if request.status == 'completed' and request.completed_at %}
+                                    <div class="time-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Completed on: {{ request.completed_at.strftime('%A, %B %d, %Y at %I:%M %p') }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Pet Owner Info -->
+                            <div class="request-info-item">
+                                <h3><i class="fas fa-user"></i>Pet Owner</h3>
+                                <div class="contact-info">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>{{ request.pet_owner.name }}</span>
+                                </div>
+                                <div class="contact-info">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>{{ request.pet_owner.email }}</span>
+                                </div>
+                                <div class="contact-info">
+                                    <i class="fas fa-phone"></i>
+                                    <span>{{ request.pet_owner.phone if request.pet_owner.phone else 'No phone number provided' }}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Caretaker Info (if assigned) -->
+                            {% if request.status in ['accepted', 'completed'] and request.caretaker %}
+                            <div class="request-info-item">
+                                <h3><i class="fas fa-user-shield"></i>Caretaker</h3>
+                                <div class="contact-info">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>{{ request.caretaker.name }}</span>
+                                </div>
+                                <div class="contact-info">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>{{ request.caretaker.email }}</span>
+                                </div>
+                                <div class="contact-info">
+                                    <i class="fas fa-phone"></i>
+                                    <span>{{ request.caretaker.phone if request.caretaker.phone else 'No phone number provided' }}</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Additional Details -->
+                            {% if request.description %}
+                            <div class="request-info-item">
+                                <h3><i class="fas fa-info-circle"></i>Additional Details</h3>
+                                <p>{{ request.description }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Action Buttons Section -->
+                            <div class="action-buttons">
+                                {% if current_user.user_type == 'caretaker' %}
+                                    {% if request.status == 'open' %}
+                                    <div class="d-flex flex-wrap">
+                                        <form method="POST" action="{{ url_for('accept_service_request', request_id=request.id) }}" class="me-2 mb-2">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-check"></i> Accept Request
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ url_for('decline_service_request', request_id=request.id) }}" class="me-2 mb-2" onsubmit="return confirm('Are you sure you want to decline this service request?')">
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="fas fa-times"></i> Decline Request
+                                            </button>
+                                        </form>
+                                    </div>
+                                    {% elif request.status == 'accepted' and current_user.id == request.caretaker_id %}
+                                    <div class="d-flex flex-wrap">
+                                        <form method="POST" action="{{ url_for('mark_service_request_complete', request_id=request.id) }}" class="me-2 mb-2">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-check-double"></i> Mark as Completed
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ url_for('cancel_service_request', request_id=request.id) }}" class="me-2 mb-2" onsubmit="return confirm('Are you sure you want to delete this service request? This action cannot be undone.')">
+                                            <button type="submit" class="btn btn-outline-danger">
+                                                <i class="fas fa-trash"></i> Delete Request
+                                            </button>
+                                        </form>
+                                    </div>
+                                    {% elif request.status == 'completed' and current_user.id == request.caretaker_id %}
+                                    <div class="d-flex flex-wrap">
+                                        <form method="POST" action="{{ url_for('cancel_service_request', request_id=request.id) }}" class="me-2 mb-2" onsubmit="return confirm('Are you sure you want to delete this service request? This action cannot be undone.')">
+                                            <button type="submit" class="btn btn-outline-danger">
+                                                <i class="fas fa-trash"></i> Delete Request
+                                            </button>
+                                        </form>
+                                    </div>
+                                    {% endif %}
+                                {% endif %}
+                                
+                                {% if current_user.user_type == 'pet_owner' and request.status == 'open' %}
+                                <div class="d-flex flex-wrap">
+                                    <form method="POST" action="{{ url_for('cancel_service_request', request_id=request.id) }}" class="me-2 mb-2" onsubmit="return confirm('Are you sure you want to cancel this service request? This action cannot be undone.')">
+                                        <button type="submit" class="btn btn-outline-danger">
+                                            <i class="fas fa-times-circle"></i> Cancel Request
+                                        </button>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

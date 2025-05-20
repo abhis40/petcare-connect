@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}PetCare Connect - Add Pet{% endblock %}
+
+{% block extracss %}
+<style>
+    /* Preview Container */
+    .preview-container {
+        width: 100%;
+        max-width: 220px;
+        aspect-ratio: 1 / 1;
+        border: 2px dashed var(--background-light);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+        transition: var(--transition);
+        margin: auto;
+    }
+
+    .preview-container:hover {
+        border-color: var(--primary-color);
+    }
+
+    /* Ensure full image visible */
+    .preview-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: var(--transition);
+    }
+
+    .preview-placeholder {
+        text-align: center;
+        color: var(--text-light);
+    }
+
+    /* Form Controls */
+    .form-control, .form-select {
+        border: 1px solid var(--medium-gray);
+        background-color: var(--white);
+        color: var(--text-color);
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: var(--transition);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    /* Cards */
+    .card {
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        border: none;
+        transition: var(--transition);
+    }
+
+    /* Buttons */
+    .btn-primary, .btn-outline-secondary, .btn-outline-primary {
+        transition: var(--transition);
+    }
+
+    .btn-primary:hover, .btn-outline-secondary:hover, .btn-outline-primary:hover {
+        filter: brightness(1.05);
+    }
+
+    /* Breadcrumbs */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 576px) {
+        .preview-container {
+            max-width: 180px;
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Add Pet</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <h1 class="h3 mb-4">Add a New Pet</h1>
+                
+                <form method="POST" action="{{ url_for('add_pet') }}" enctype="multipart/form-data">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Pet's Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Pet Type</label>
+                                <div class="d-flex">
+                                    <div class="form-check me-4">
+                                        <input class="form-check-input" type="radio" name="species" id="type-dog" value="dog" checked>
+                                        <label class="form-check-label" for="type-dog">
+                                            <i class="fas fa-dog me-1"></i> Dog
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="species" id="type-cat" value="cat">
+                                        <label class="form-check-label" for="type-cat">
+                                            <i class="fas fa-cat me-1"></i> Cat
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="breed" class="form-label">Breed (if known)</label>
+                                <input type="text" class="form-control" id="breed" name="breed" placeholder="Optional">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="age" class="form-label">Age (years)</label>
+                                <input type="number" class="form-control" id="age" name="age" min="0" max="30" step="0.1" placeholder="Optional">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="image" class="form-label">Pet Photo (Optional)</label>
+                                <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                                <div class="form-text">Upload a clear photo of your pet</div>
+                            </div>
+                            
+                            <div class="preview-container mx-auto mt-3">
+                                <div class="preview-placeholder" id="preview-placeholder">
+                                    <i class="fas fa-camera fa-2x mb-2"></i>
+                                    <p>Image preview</p>
+                                </div>
+                                <img id="image-preview" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="identify-later" name="identify_later">
+                            <label class="form-check-label" for="identify-later">
+                                I want to use the breed identification tool later
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            If you're not sure about your pet's breed, you can add basic information now and use our breed identification tool later.
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary me-md-2">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add Pet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Breed Identification Suggestion Section -->
+<div class="row justify-content-center mt-4 mb-5">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 mb-3">Need Diet Recommendations for Your Pet?</h2>
+                <p>Our AI-powered tool can analyze your pet's photo and provide customized diet recommendations!</p>
+                <div class="d-grid gap-2 d-md-flex">
+                    <a href="{{ url_for('diet_recommendation') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-utensils me-2"></i>Get Diet Recommendations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('image');
+        const imagePreview = document.getElementById('image-preview');
+        const previewPlaceholder = document.getElementById('preview-placeholder');
+        
+        // Show image preview when file is selected
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    previewPlaceholder.style.display = 'none';
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                imagePreview.style.display = 'none';
+                previewPlaceholder.style.display = 'flex';
+            }
+        });
+    });
+</script>
+{% endblock %}

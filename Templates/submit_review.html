@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Review{% endblock %}
+
+{% block extracss %}
+<style>
+    .rating-container {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    
+    .rating-container input {
+        display: none;
+    }
+    
+    .rating-container label {
+        cursor: pointer;
+        font-size: 30px;
+        color: #ddd;
+        padding: 0 5px;
+    }
+    
+    .rating-container label:hover,
+    .rating-container label:hover ~ label,
+    .rating-container input:checked ~ label {
+        color: #ffc107;
+    }
+    
+    .service-details {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .service-details .badge {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .caretaker-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .caretaker-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Submit Review for Service</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Service Details -->
+                    <div class="service-details mb-4">
+                        <div class="caretaker-info">
+                            <div class="caretaker-avatar">
+                                <i class="fas fa-user-md text-primary"></i>
+                            </div>
+                            <div>
+                                <h3 class="h5 mb-0">{{ service_request.caretaker.name }}</h3>
+                                <p class="text-muted mb-0">Caretaker</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <strong>Service for:</strong> {{ service_request.pet.name }} ({{ service_request.pet.species|title }})
+                        </div>
+                        
+                        <div class="mb-3">
+                            <strong>Services provided:</strong>
+                            <div class="mt-1">
+                                {% for service in service_request.get_services_needed() %}
+                                    <span class="badge bg-light text-dark border">{{ service }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-0">
+                            <strong>Date:</strong> {{ service_request.start_time.strftime('%B %d, %Y') }}
+                        </div>
+                    </div>
+
+                    <!-- Review Form -->
+                    <form method="POST" action="{{ url_for('submit_review', request_id=service_request.id) }}">
+                        <div class="mb-4">
+                            <label class="form-label">How would you rate this service?</label>
+                            <div class="rating-container">
+                                <input type="radio" id="star5" name="rating" value="5" required>
+                                <label for="star5" title="5 stars"><i class="fas fa-star"></i></label>
+                                
+                                <input type="radio" id="star4" name="rating" value="4">
+                                <label for="star4" title="4 stars"><i class="fas fa-star"></i></label>
+                                
+                                <input type="radio" id="star3" name="rating" value="3">
+                                <label for="star3" title="3 stars"><i class="fas fa-star"></i></label>
+                                
+                                <input type="radio" id="star2" name="rating" value="2">
+                                <label for="star2" title="2 stars"><i class="fas fa-star"></i></label>
+                                
+                                <input type="radio" id="star1" name="rating" value="1">
+                                <label for="star1" title="1 star"><i class="fas fa-star"></i></label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="comment" class="form-label">Your Comments</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="4" placeholder="Share your experience with this caretaker..."></textarea>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

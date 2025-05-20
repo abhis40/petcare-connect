@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Details{% endblock %}
+
+{% block extracss %}
+<style>
+    .booking-details-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .booking-header {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        color: white;
+        padding: 2rem;
+    }
+    
+    .booking-header h1 {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .booking-body {
+        padding: 2rem;
+    }
+    
+    .booking-info-item {
+        margin-bottom: 1.5rem;
+    }
+    
+    .booking-info-item h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #4e73df;
+    }
+    
+    .booking-info-item p {
+        margin-bottom: 0;
+        color: #495057;
+    }
+    
+    .pet-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid white;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .pet-image-placeholder {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #adb5bd;
+        border: 3px solid white;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .status-badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50rem;
+    }
+    
+    .status-confirmed {
+        background-color: #1cc88a;
+        color: white;
+    }
+    
+    .status-pending {
+        background-color: #f6c23e;
+        color: #212529;
+    }
+    
+    .status-completed {
+        background-color: #4e73df;
+        color: white;
+    }
+    
+    .status-cancelled {
+        background-color: #e74a3b;
+        color: white;
+    }
+    
+    .action-buttons {
+        margin-top: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="booking-details-card">
+                <div class="booking-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="h3">Booking Details</h1>
+                        <span class="status-badge status-{{ booking.status }}">{{ booking.status|capitalize }}</span>
+                    </div>
+                    <p class="mb-0">Booking #{{ booking.id }}</p>
+                </div>
+                
+                <div class="booking-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4 mb-md-0">
+                            {% if booking.pet.image_filename %}
+                            <img src="{{ url_for('static', filename='uploads/' + booking.pet.image_filename) }}" 
+                                 class="pet-image mb-3" alt="{{ booking.pet.name }}">
+                            {% else %}
+                            <div class="pet-image-placeholder mb-3 mx-auto">
+                                <i class="fas fa-paw"></i>
+                            </div>
+                            {% endif %}
+                            <h2 class="h4 mb-1">{{ booking.pet.name }}</h2>
+                            <p class="text-muted">{{ booking.pet.breed }}</p>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div class="booking-info-item">
+                                <h3>Booking Period</h3>
+                                <p>From: {{ booking.start_time.strftime('%A, %B %d, %Y at %I:%M %p') }}</p>
+                                <p>To: {{ booking.end_time.strftime('%A, %B %d, %Y at %I:%M %p') }}</p>
+                                <p class="text-muted mt-1">
+                                    Duration: 
+                                    {% set duration = (booking.end_time - booking.start_time).total_seconds() // 3600 %}
+                                    {% if duration < 24 %}
+                                        {{ duration }} hour{% if duration != 1 %}s{% endif %}
+                                    {% else %}
+                                        {% set days = duration // 24 %}
+                                        {% set remaining_hours = duration % 24 %}
+                                        {{ days }} day{% if days != 1 %}s{% endif %}
+                                        {% if remaining_hours > 0 %}
+                                            and {{ remaining_hours }} hour{% if remaining_hours != 1 %}s{% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                </p>
+                            </div>
+                            
+                            <div class="booking-info-item">
+                                <h3>Pet Owner</h3>
+                                <p>{{ booking.pet_owner.name }}</p>
+                                <p>{{ booking.pet_owner.email }}</p>
+                                <p>{{ booking.pet_owner.phone if booking.pet_owner.phone else 'No phone number provided' }}</p>
+                            </div>
+                            
+                            <div class="booking-info-item">
+                                <h3>Caretaker</h3>
+                                <p>{{ booking.caretaker.name }}</p>
+                                <p>{{ booking.caretaker.email }}</p>
+                                <p>{{ booking.caretaker.phone if booking.caretaker.phone else 'No phone number provided' }}</p>
+                            </div>
+                            
+                            {% if booking.notes %}
+                            <div class="booking-info-item">
+                                <h3>Special Instructions</h3>
+                                <p>{{ booking.notes }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="action-buttons">
+                                {% if current_user.user_type == 'caretaker' %}
+                                    {% if booking.status == 'pending' %}
+                                    <!-- Accept and Decline buttons for available requests -->
+                                    <div class="d-flex flex-wrap">
+                                        <form method="POST" action="{{ url_for('accept_booking', booking_id=booking.id) }}" class="me-2 mb-2">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-check"></i> Accept Request
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ url_for('decline_booking', booking_id=booking.id) }}" class="me-2 mb-2" onsubmit="return confirm('Are you sure you want to decline this booking request?')">
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="fas fa-times"></i> Decline Request
+                                            </button>
+                                        </form>
+                                    </div>
+                                    {% elif booking.status == 'confirmed' and current_user.id == booking.caretaker_id %}
+                                    <!-- Cancel button for confirmed bookings -->
+                                    <form method="POST" action="{{ url_for('cancel_booking', booking_id=booking.id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this booking? This action cannot be undone.')">
+                                        <button type="submit" class="btn btn-danger">
+                                            <i class="fas fa-times me-2"></i>Cancel Booking
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                {% endif %}
+                                
+                                <!-- Back to Dashboard button -->
+                                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary {% if not (current_user.user_type == 'caretaker' and (booking.status == 'pending' or (booking.status == 'confirmed' and current_user.id == booking.caretaker_id))) %}mt-2{% else %}ms-2{% endif %}">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
